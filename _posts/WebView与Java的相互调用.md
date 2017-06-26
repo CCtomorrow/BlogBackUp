@@ -1,7 +1,7 @@
 ---
 title: 'WebView与Java的相互调用'
 date: 2016-04-25 17:20:40
-tags: [Android]
+tags: [WebView]
 categories: [Android,WebView]
 ---
 本次主要介绍 WebView 和前端的一些交互，前端调用 Java 方法的几种方法，顺便会介绍 Java 调用 JS 的方式。

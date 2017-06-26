@@ -1,8 +1,8 @@
 ---
 title: 'ViewGroup事件分发'
 date: 2016-07-14 00:40:40
-tags: [Android]
-categories: [Android,自定义View]
+tags: [Custom View]
+categories: [Android,Custom View]
 ---
 这次分析ViewGroup的事件分发了。
 

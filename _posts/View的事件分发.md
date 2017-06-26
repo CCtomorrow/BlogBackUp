@@ -1,8 +1,8 @@
 ---
 title: 'View的事件分发'
 date: 2016-07-12 00:17:40
-tags: [Android]
-categories: [Android,自定义View]
+tags: [Custom View]
+categories: [Android,Custom View]
 ---
 ### 前言:
 最近写这两篇文章的原因是因为在自定义View的时候遇到有关事件分发的问题，然后自己怎么也想不通，最后决定自己看一遍源代码，那其实自己以前也有看过应该说很多的关于事件分发的文章，大概的东西也知道，但是对于有的事情还是模棱两可吧。

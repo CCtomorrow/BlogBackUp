@@ -1,8 +1,8 @@
 ---
 title: 'Android自定义属性为应用程序设置全局背景'
 date: 2016-04-22 16:00:40
-tags: [Android]
-categories: [Android,自定义View]
+tags: [Custom View]
+categories: [Android,Custom View]
 ---
 关于自定义属性，我们用的比较多的时候就是在自定义view的时候了，其实自定义属性还有一些其余的妙用。
 

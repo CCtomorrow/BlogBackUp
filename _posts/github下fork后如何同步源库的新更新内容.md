@@ -2,7 +2,7 @@
 title: 'github下fork后如何同步源库的新更新内容?'
 date: 2016-07-23 21:35:40
 tags: [Git]
-categories: [Git使用]
+categories: [Git]
 ---
 #### 步骤:
 

@@ -1,8 +1,8 @@
 ---
 title: '使用Charles对Android App进行抓包'
 date: 2017-02-23 23:43:40
-tags: [Android]
-categories: [Android,抓包]
+tags: [Charles]
+categories: [Android,other]
 ---
 ## 使用Charles对Android App进行抓包
 

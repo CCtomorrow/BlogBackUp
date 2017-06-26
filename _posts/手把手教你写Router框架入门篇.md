@@ -1,7 +1,7 @@
 ---
 title: '手把手教你写Router框架入门篇'
 date: 2017-03-26 23:43:40
-tags: [Android]
+tags: [Router]
 categories: [Android,Router]
 ---
 ### 前言

@@ -1,8 +1,8 @@
 ---
 title: 'Dagger2入门使用'
 date: 2017-03-03 23:43:40
-tags: [Android]
-categories: [Android,Dagger2]
+tags: [Dagger2]
+categories: [Android,other]
 ---
 dagger 1.x 以前只是听说过，没使用过，也不打算再研究啦。
 最近在看有关组件化的文章，讲道理，组件化如果约定好了，唯一需要解决的可能就是组件之间的通信了。

@@ -1,8 +1,8 @@
 ---
 title: 'Android Volley + OkHttp3 + Gson 开源库的封装'
 date: 2016-04-23 20:52:40
-tags: [Android]
-categories: [Android,Volley,OkHttp3]
+tags: [Volley,OKHttp3]
+categories: [Android,other]
 ---
 博客将按照下面的步骤介绍Volley的重新封装:
 1.OkHttp3的关于Volley的HttpStack实现

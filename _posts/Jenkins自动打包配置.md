@@ -1,7 +1,7 @@
 ---
 title: 'Jenkins自动打包配置'
 date: 2016-08-12 23:43:40
-tags: [Android]
+tags: [Jenkins]
 categories: [Android,Jenkins]
 ---
 当时也是花费了不少时间来配置Jenkins自动打包的问题，觉得还是需要记录一下。

@@ -1,8 +1,8 @@
 ---
 title: '自定义View实现天气折线图效果'
 date: 2016-06-02 00:00:40
-tags: [Android]
-categories: [Android,自定义View]
+tags: [Custom View]
+categories: [Android,Custom View]
 ---
 #### 本次博客主要介绍一个天气效果的实现过程
 ---

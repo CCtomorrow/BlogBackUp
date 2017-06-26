@@ -1,7 +1,7 @@
 ---
 title: 'Android的资源管理器的创建过程'
 date: 2017-05-05 23:43:40
-tags: [Android]
+tags: [插件化]
 categories: [Android,插件化]
 ---
 最近在研究Android的插件化，插件化需要解决的问题大概有这样的几个，为什么需要插件化技术这个就不说啦。

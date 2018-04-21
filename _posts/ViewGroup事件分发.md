@@ -202,7 +202,7 @@ private boolean dispatchTransformedTouchEvent(MotionEvent event, boolean cancel,
 上面多次调用这个方法，如果ViewGroup拦截了Touch事件或者子View不能消耗掉Touch事件，那么ViewGroup会在其自身的onTouch()，onTouchEvent()中处理Touch如果子View消耗了Touch事件父View就不能再处理Touch.
 
 图示:
-![ViewGroup事件分发](http://img.blog.csdn.net/20160718221714014)
+![ViewGroup事件分发](http://dd089a5b.wiz03.com/share/resources/28be0556-fc11-4a81-925b-7a5b5a3ff92c/index_files/83827239.png)
 
 问题:
 ViewGroup将ACTION_DOWN分发给子View，如果子View没有消费该事件，那么当ACTION_MOVE和ACTION_UP到来的时候系统还会将Touch事件派发给该子View么？

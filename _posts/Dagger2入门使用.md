@@ -23,7 +23,7 @@ dependencies {
 ```
 dagger2采用的是编译时注解时注解，以前可能用的是apt，Gradle从2.2版本开始支持annotationProcessor功能来代替Android-apt。android-apt插件作者近期已经发表声明表示后续不会再继续维护该插件。
 关于如何从apt切换到annotationProcessor可以参考下图。
-![](http://upload-images.jianshu.io/upload_images/1321338-7874202f3a0db658?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![apt](http://dd089a5b.wiz03.com/share/resources/1221d000-61ed-4a7a-82c9-50663c0c9cd9/index_files/85285789.png)
 图取自 [拓展篇：注解处理器最佳实践](http://blog.csdn.net/dd864140130/article/details/53957691)
 
 ## 概念

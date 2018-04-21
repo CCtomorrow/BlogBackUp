@@ -21,7 +21,7 @@ categories: [Android,插件化]
 assets类资源放在工程根目录的Assets子目录下，这些文件最终会被原装不动地打包在apk文件中。如果我们要在程序中访问这些文件，那么就需要指定文件名来访问。
 - Res
 res资源比较多，放一张图吧，基本一看就明白。
-![res资源类型.png](http://upload-images.jianshu.io/upload_images/1321338-f504c4b46ead8fe0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![res资源类型.png](http://dd089a5b.wiz03.com/share/resources/a20dafc7-ab84-4bcb-a155-fd128ecb9496/index_files/85903154.png)
 
 res资源大概是这样的啦，当然还有raw以及xml等资源啦。在编译打包的过程中，会把资源文件打包成二进制文件(.xml文件打包成二进制文件，png文件进行优化等)。会对除了assets资源之外所有的资源赋予一个资源ID常量，并且会生成一个资源索引表resources.arsc。
 
@@ -70,22 +70,22 @@ Android系统当前定义了两个资源命令空间，其中一个系统资源�
         String name = resources.getString(R.string.app_name);
 ```
 继续跟踪` resources.getString`的实现:
-![Res.getString.png](http://upload-images.jianshu.io/upload_images/1321338-51065ca5ad09a4eb.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![Res.getString.png](http://dd089a5b.wiz03.com/share/resources/a20dafc7-ab84-4bcb-a155-fd128ecb9496/index_files/85921769.png)
 可以看到确实是使用的AssetManager来处理的。
 
 #### 2.上下文环境Context的创建
 前面说了，查找资源使用的是`Resources`和`AssetManager`，那我们来跟踪一下这两个类的创建生成吧。
-![mBase.getResource.png](http://upload-images.jianshu.io/upload_images/1321338-ae2ca11c4da0da29.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
-![getResources.png](http://upload-images.jianshu.io/upload_images/1321338-57ae1e7f658da5fc.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![mBase.getResource.png](http://dd089a5b.wiz03.com/share/resources/a20dafc7-ab84-4bcb-a155-fd128ecb9496/index_files/85932377.png)
+![getResources.png](http://dd089a5b.wiz03.com/share/resources/a20dafc7-ab84-4bcb-a155-fd128ecb9496/index_files/85956036.png)
 
 我们会很清楚的发现这两个类全部是由`Context`创建的，所以现在需要找到`mBase`即`Context`的生成过程，从上图清晰可见的是`mBase`的生成时机是在`attachBaseContext`这个方法中，找到哪里调用这个方法，最后在子类`Activity`中找到了调用的时机。
-![Activity.attach.png](http://upload-images.jianshu.io/upload_images/1321338-79cb0bce1868ae05.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![Activity.attach.png](http://dd089a5b.wiz03.com/share/resources/a20dafc7-ab84-4bcb-a155-fd128ecb9496/index_files/85966139.png)
 通过这个方法名，我们大概就知道，这个方法是`Activity`创建的时候会调用的，现在我们应该看看，一个`Activity`是怎样创建出来的咯。
 
 说到`Activity`的创建，首先应该想到`Activity#startActivity`方法的，从上往下看，显然最后都是调用的`Activity#startActivityForResult`来实现的。
-![startActivityForResult.png](http://upload-images.jianshu.io/upload_images/1321338-d7db2e7448075cda.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![startActivityForResult.png](http://dd089a5b.wiz03.com/share/resources/a20dafc7-ab84-4bcb-a155-fd128ecb9496/index_files/85981321.png)
 可以发现真正打开`Activity`的实现在`Instrumentation`的`execStartActivity`方法中，我们去看他的实现:
-![Instrumentation#execStartActivity.png](http://upload-images.jianshu.io/upload_images/1321338-dae50ca20220b66e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![Instrumentation#execStartActivity.png](http://dd089a5b.wiz03.com/share/resources/a20dafc7-ab84-4bcb-a155-fd128ecb9496/index_files/85993687.png)
 然后观察，发现最后调用的是:
 `int result = ActivityManagerNative.getDefault().startActivity(whoThread, who.getBasePackageName(),intent,intent.resolveTypeIfNeeded(who.getContentResolver()),token, target, requestCode, 0, null, options);`
 这里的`ActivityManagerNative.getDefault`返回`IActivityManager`对象，由于需要启动的`Activity`不一定是我们当前进程的，比如`Launcher`在桌面启动一个应用就会新开个进程的。这里就会有IPC交互，这里返回的`IActivityManager `，如果是和当前进程在同一个进程就是`ActivityManagerNative`的子类，因为`IActivityManager`接口里面的方法它都没有实现的，如果不在同一个进程这个`IActivityManager`对象就是`ActivityManagerProxy`对象。
@@ -234,7 +234,7 @@ private Activity performLaunchActivity(ActivityClientRecord r, Intent customInte
 这里我们终于知道，`Context`的最终的实现类是`ContextImpl `啦。
 Android应用程序窗口的运行上下文环境是通过ContextImpl类来描述的，即每一个Activity组件都关联有一个ContextImpl对象。ContextImpl类继承了Context类，它与Activity组件的关系如图所示:
 图片取自[[Android应用程序窗口（Activity）的运行上下文环境（Context）的创建过程分析](http://blog.csdn.net/luoshengyang/article/details/8201936)](http://blog.csdn.net/luoshengyang/article/details/8201936)
-![ContextImpl类与Activity类的关系图.jpg](http://upload-images.jianshu.io/upload_images/1321338-32f25528088e687e.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![ContextImpl类与Activity类的关系图.jpg](http://dd089a5b.wiz03.com/share/resources/a20dafc7-ab84-4bcb-a155-fd128ecb9496/index_files/86046189.png)
 这里我们解决了Activity里面的Context是怎么生成的问题。
 
 #### 3. AssetManager的创建过程

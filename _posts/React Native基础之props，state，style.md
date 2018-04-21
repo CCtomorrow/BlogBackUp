@@ -49,7 +49,7 @@ RN的Hello World程序如上面所示的。
 
 ##### props
 大多数组件在创建时就可以使用各种参数来进行定制。用于定制的这些参数就称为`props`（属性）。所谓`props`，就是属性传递，而且是单向传递的。属性多的时候，可以传递一个对象，这是es6中的语法。
-![图片文字组件](http://upload-images.jianshu.io/upload_images/1321338-f8f26d733b1373a2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![图片文字组件](http://dd089a5b.wiz03.com/share/resources/16c5c61b-6f6d-4f6e-89ed-e2bccf2bcbad/index_files/367708.png)
 例如，我现在要定制一个这样的组件，上面显示图片，下面显示文字，当然知道官方的组件`Image`,`Text`已经足已完成这样的功能，我们现在为了展示props的用途这里来学习一下。
 编写的代码大概是这样，当然其实也是利用官方的组件做的啦。
 ```
@@ -195,6 +195,6 @@ const styles = StyleSheet.create({
     },
 });
 ```
-![效果.png](http://upload-images.jianshu.io/upload_images/1321338-33e459ec3ff78bd8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![效果.png](http://dd089a5b.wiz03.com/share/resources/16c5c61b-6f6d-4f6e-89ed-e2bccf2bcbad/index_files/402176.png)
 可以很明显的看到后面的style会覆盖前面的。
 做项目写代码的时候，还是要多看文档，熟悉了就会比较快啦。

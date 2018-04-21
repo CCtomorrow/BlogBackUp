@@ -95,7 +95,7 @@ View的longClickable属性默认为false。
 比如：setOnClickListener()会将View的CLICKABLE设置为true；setOnLongClickListener()会将View的LONG_CLICKABLE设置为true。
 
 图示:
-![View事件分发](http://img.blog.csdn.net/20160718120107410)
+![View事件分发](http://dd089a5b.wiz03.com/share/resources/589eca25-b8c6-4afd-86ac-9a3e418a0bed/index_files/83623145.png)
 
 #### 最后说一下总结
 1. OnTouch事件执行的条件是当前的控件是Enable的，并且设置了OnTouchListener。

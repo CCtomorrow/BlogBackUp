@@ -7,10 +7,10 @@ categories: [Android,Custom View]
 #### 本次博客主要介绍一个天气效果的实现过程
 ---
 最近公司的项目加入天气模块，需要实现下面的效果:
-![设计图](http://img.blog.csdn.net/20160601225006106)
+![设计图](http://dd089a5b.wiz03.com/share/resources/27d53ba0-c23e-41a7-b357-d2e3a21af482/index_files/83224707.png)
 ---
 然后根据自己的构想实现了下面的效果:
-![实现的效果图](http://img.blog.csdn.net/20160601224635095)
+![实现的效果图](http://dd089a5b.wiz03.com/share/resources/27d53ba0-c23e-41a7-b357-d2e3a21af482/index_files/def49910-d6c1-47e1-ad6c-2c91127daa79.gif)
 ---
 下面会详细的介绍实现的过程。
 
@@ -405,7 +405,7 @@ public class WeatherLineView extends View {
 </LinearLayout>
 ```
 预览的效果是这样的:
-![预览](http://img.blog.csdn.net/20160601233541634)
+![预览](http://dd089a5b.wiz03.com/share/resources/27d53ba0-c23e-41a7-b357-d2e3a21af482/index_files/83439984.png)
 当然这里那些属性我没有加上去，因为代码里面有设置默认值，如果觉得不满足要求的话，可以自己设置。
 
 #### 2.3RecyclerView的adapter的实现

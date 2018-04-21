@@ -21,7 +21,7 @@ Android中，本身并不提供这样的拦截机制，但是有时候，我们�
 上面的一段话取自[插件化知识详细分解及原理 之代理，hook，反射](http://blog.csdn.net/yulong0809/article/details/56842027)，感觉说的挺好。这里是不是就能感受到代理模式的强大了，下面会细说的。
 
 代理模式的意思就是为其他对象提供一种代理以控制对这个对象的访问，一般当我们无法或者不想直接访问某个对象或者访问某个对象存在困难时，可以用过一个代理对象来间接访问。(下图出自:[代理模式及Java实现动态代理](http://www.jianshu.com/p/6f6bb2f0ece9))
-![代理模式UML图](http://upload-images.jianshu.io/upload_images/1321338-42c518a8b202d66c.gif?imageMogr2/auto-orient/strip)
+![代理模式UML图](http://dd089a5b.wiz03.com/share/resources/74ce24d8-7c17-4545-b764-fc1d3820c181/index_files/86356234.png)
 java中的代理模式大概可以分为两种，一种就是普通的代理也就是静态代理，就是我们生成固定的代码，在我们运行前代理类的class编译文件就已经存在啦，动态代理与静态代理相反，在code阶段压根不需要知道代理谁，代理谁将会在代码的执行阶段通过一些判断来决定代理哪个对象。动态代理其实如果细分也可以分成两类，一类是JDK提供的代理，一类是[cglib](https://github.com/cglib/cglib)提供的代理类，他们的区别是:
 *JDK动态代理只能对实现了接口的类生成代理，而不能针对类 。
 CGLIB是针对类实现代理，主要是对指定的类生成一个子类，覆盖其中的方法 。
@@ -215,9 +215,9 @@ public class CglibMain {
 
 ##### Hook Instrumentation创建Activity的方法
 我在[Android的资源管理器的创建过程](http://www.jianshu.com/p/db7a9e70cbdc)里面写到过，启动Activity即Activity的创建过程了的。
-![startActivity.png](http://upload-images.jianshu.io/upload_images/1321338-2b4b4d14a4d926d2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![startActivity.png](http://dd089a5b.wiz03.com/share/resources/74ce24d8-7c17-4545-b764-fc1d3820c181/index_files/16802.png)
 其实一般的时候我们Hook，需要找对点的，什么叫Hook点呢。
-![什么叫Hook点.png](http://upload-images.jianshu.io/upload_images/1321338-cb3f35147491713d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![什么叫Hook点.png](http://dd089a5b.wiz03.com/share/resources/74ce24d8-7c17-4545-b764-fc1d3820c181/index_files/32375.png)
 这是[weishu](http://weishu.me/2016/01/28/understand-plugin-framework-proxy-hook/)大神说过的。
 这里，实际上使用了ActivityThread类的mInstrumentation成员的execStartActivity方法；注意到，ActivityThread 实际上是主线程，而主线程一个进程只有一个，因此这里是一个良好的Hook点。其实一个App的主入口就是ActivityThread，它里面有main方法的。
 所以我们可以拿到mMainThread然后修改掉它的mInstrumentation对象为我们的代理对象。
@@ -354,7 +354,7 @@ public class MainActivity extends BaseActivity {
 安卓系统中用到代理模式还是挺多的，与Binder相关的都是用到了代理模式的，关于Binder后面再说，我们平时写的AIDL都是用了代理模式的，一般在使用AIDL的时候，如果不需要跨进程就返回Binder本地对象，如果需要就返回代理对象。
 
 这里先说一一个具体的代理的例子，然后说一下Binder中的代理，顺便说一下Binder。
-![ActivityManagerService.jpg](http://upload-images.jianshu.io/upload_images/1321338-a2263ecfd7b9e265.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![ActivityManagerService.jpg](http://dd089a5b.wiz03.com/share/resources/74ce24d8-7c17-4545-b764-fc1d3820c181/index_files/58195.png)
 
 这个例子是ActivityManagerProxy的代理实现，它代理了ActivityManagerService这个类，然后在调用使用IActivityManager里面的方法的时候，因为真正的实现是ActivityManagerService，这个是运行在系统的进程中的，我们要调用的话就要跨进程调用了，安卓跨进程这里使用的是Binder。
 
@@ -392,7 +392,7 @@ Binder里面套路差不多都是这样的，左边圈起来的是客户端，�
 
 ##### 系统中的Binder跨进程通信
 然后说说系统中的Binder跨进程通信吧。framework层Binder类图如下:
-![framework的binder类](http://upload-images.jianshu.io/upload_images/1321338-e4d14c9840a65c5a.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![framework的binder类](http://dd089a5b.wiz03.com/share/resources/74ce24d8-7c17-4545-b764-fc1d3820c181/index_files/83769.png)
 图片取自[Gityuan博客](http://gityuan.com/2015/11/21/binder-framework/).
 关于这几个类的解释看他的博客就行了，这里就不抄袭了。
 在Android系统开机过程中，Zygote启动startReg会去注册一系列的方法，从而把Java层的方法和JNI方法绑定在一起的。

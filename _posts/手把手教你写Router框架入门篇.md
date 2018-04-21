@@ -151,7 +151,7 @@ public class MyProcessor extends AbstractProcessor {
 ##### 注册你的处理器
 在你提供的jar包中，需要有特定的文件在META-INF/services中，文件名是`javax.annotation.processing.Processor`内容是处理器的路径，多个的就没行一个啦。类似下面。
 
-![注册处理器](http://upload-images.jianshu.io/upload_images/1321338-ee28fe43c2517643.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![注册处理器](http://dd089a5b.wiz03.com/share/resources/ab488f1a-bef5-45db-81bf-4b8f5503f69e/index_files/85465331.png)
 
 ##### 处理器的编写
 其实编写编译时注解处理器，首先要知道我们要干什么，上面一开始就把我们要干什么事情分析的很清楚了，我们需要写一个类，这个类去实现`IRoute`接口，在`initRouter`方法里面去实现关联Activity和URL。
@@ -161,7 +161,7 @@ public class MyProcessor extends AbstractProcessor {
 - 2.在提供对外使用的API中使用反射调用，原因和上面一样，类名是死的，就算不是死的，我们也知道类名的生成规则的。这就是上面提到的可能会用到一些反射的原因。
 
 编写编译时注解的library是有一定套路的，一般编写这种库，会建三个module，一个是只存放注解的库，一个是注解处理库(这个只是处理注解，并不会增加apk的大小啦)，一个是提供对外使用的API库，前面已经说到，其实这种库，注解处理器的作用很小的，只是提供某一个功能，其余的99%的功能都是对外使用的API库做的(就是说可以只有API库，其余的需要编译时注解处理的工作可以手动处理)。这个很重要，要记住。一般项目划分如下。
-![项目结构划分](http://upload-images.jianshu.io/upload_images/1321338-06d537f5474e8f8f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![项目结构划分](http://dd089a5b.wiz03.com/share/resources/ab488f1a-bef5-45db-81bf-4b8f5503f69e/index_files/85486779.png)
 
 ##### 注解库实现
 注解库只专注提供注解给API库和注解处理器库使用，本身并不做其他的操作。这里我们只需要一个注解即可，这个注解是使用在Activity上面的，就是类(继承自Activity的类)上面，所以这里就很简单啦。

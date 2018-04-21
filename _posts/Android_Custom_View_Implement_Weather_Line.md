@@ -4,50 +4,48 @@ date: 2016-06-02 00:00:40
 tags: [Custom View]
 categories: [Android,Custom View]
 ---
-#### 本次博客主要介绍一个天气效果的实现过程
----
-最近公司的项目加入天气模块，需要实现下面的效果:
-![设计图](http://dd089a5b.wiz03.com/share/resources/27d53ba0-c23e-41a7-b357-d2e3a21af482/index_files/83224707.png)
----
-然后根据自己的构想实现了下面的效果:
-![实现的效果图](http://dd089a5b.wiz03.com/share/resources/27d53ba0-c23e-41a7-b357-d2e3a21af482/index_files/def49910-d6c1-47e1-ad6c-2c91127daa79.gif)
----
-下面会详细的介绍实现的过程。
 
-### 1.构想思路
+### 前言
+最近公司的项目加入天气模块，需要实现下面的效果。
+![设计图](/images/weather_design.png)
+然后根据自己的构想实现了下面的效果。
+![实现的效果图](/images/weather_implement.gif)
+
+### 构想思路
 其实在拿到设计的一个效果，我们首先要做的就是去思考，怎么实现，就算不好实现，也要实现一个折中的两边都可以妥协的方案。
 
 由于当前是要展示10天以上的天气的情况，那么如果采用一个view绘制的形式肯定会影响到性能，那其实很快就想到了ListView，这不就是一个横向的ListView的效果么，考虑到ListView并没有横向的效果，转而就想到了RecyclerView，RecyclerView的LinearLayoutManager可以直接设置为横向的，这解决了使用什么来实现的问题。
 
-#### 1.1最高温度和最低温度在View上面怎么绘制
-这个问题不是太难，可以这样，拿到这15天的最低温度和最高温度，这个需要我们计算，从这15个最高以及最低温度里面找到最大以及最小的，然后使用这两个温度差去映射View的高度，最后可以得到需要的绘制的圆点View的Y轴的计算公式:
+#### 最高温度和最低温度在View上面怎么绘制
+这个问题不是太难，可以这样，拿到这15天的最低温度和最高温度，这个需要我们计算，从这15个最高以及最低温度里面找到最大以及最小的，然后使用这两个温度差去映射View的高度，最后可以得到需要的绘制的圆点View的Y轴的计算公式。
 $$需要在View上面绘制的高度 = \frac{(今天的温度-15天里面最低温度)View的高度}{15天里面最高温度-15天里面最低温度} $$
 
-#### 1.2折线在每个view的最左边个最右边的位置
-这个也很简单，用 $$\frac{昨天的温度+今天的温度}{2}$$
+#### 折线在每个view的最左边个最右边的位置
+这个也很简单，用下面的公式即可。
+ $$\frac{昨天的温度+今天的温度}{2}$$
 然后再经过上面的计算就可以得到需要绘制的Y轴的位置。
 
 <!-- more -->
 
-### 2.具体实现
-#### 2.1WeatherLineView的实现
+### 具体实现
+#### WeatherLineView的实现
 自定义WeatherLineView，需要下面的几个属性:
-```
-    <declare-styleable name="WeatherLineView">
-        <!-- 文字大小 -->
-        <attr name="temperTextSize" format="dimension"/>
-        <!-- 文字的颜色 -->
-        <attr name="weatextColor" format="color"/>
-        <!-- 绘制的线的宽度 -->
-        <attr name="weaLineWidth" format="dimension"/>
-        <!-- 绘制的圆点的半径 -->
-        <attr name="weadotRadius" format="dimension"/>
-        <!-- 文字离圆点的距离 -->
-        <attr name="textDotDistance" format="dimension"/>
-    </declare-styleable>
+```xml
+<declare-styleable name="WeatherLineView">
+    <!-- 文字大小 -->
+    <attr name="temperTextSize" format="dimension"/>
+    <!-- 文字的颜色 -->
+    <attr name="weatextColor" format="color"/>
+    <!-- 绘制的线的宽度 -->
+    <attr name="weaLineWidth" format="dimension"/>
+    <!-- 绘制的圆点的半径 -->
+    <attr name="weadotRadius" format="dimension"/>
+    <!-- 文字离圆点的距离 -->
+    <attr name="textDotDistance" format="dimension"/>
+</declare-styleable>
 ```
 具体的实现:
-```
+```java
 public class WeatherLineView extends View {
 
     /**
@@ -322,14 +320,13 @@ public class WeatherLineView extends View {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                 dpVal, context.getResources().getDisplayMetrics());
     }
-
 }
 ```
 上面就是折线的天气View，代码的注释比较详细了。
 
 
-#### 2.2RecyclerView的Item的布局
-```
+#### RecyclerView的Item的布局
+```xml
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -405,11 +402,11 @@ public class WeatherLineView extends View {
 </LinearLayout>
 ```
 预览的效果是这样的:
-![预览](http://dd089a5b.wiz03.com/share/resources/27d53ba0-c23e-41a7-b357-d2e3a21af482/index_files/83439984.png)
+![预览](/images/weather_impl_item.png)
 当然这里那些属性我没有加上去，因为代码里面有设置默认值，如果觉得不满足要求的话，可以自己设置。
 
-#### 2.3RecyclerView的adapter的实现
-```
+#### RecyclerView的adapter的实现
+```java
 public class WeaDataAdapter extends RecyclerView.Adapter<WeaDataAdapter.WeatherDataViewHolder> {
 
     private Context mContext;
@@ -501,66 +498,65 @@ public class WeaDataAdapter extends RecyclerView.Adapter<WeaDataAdapter.WeatherD
 }
 ```
 Model里面的字段:
+```java
+public static class WeatherDailyModel {
+    /**
+        * date : 2016-05-30
+        * text_day : 多云
+        * code_day : 4
+        * text_night : 阴
+        * code_night : 9
+        * high : 34
+        * low : 22
+        */
+    private String date;
+    private String text_day;
+    private int code_day;
+    private String text_night;
+    private int code_night;
+    private int high;
+    private int low;
+}
 ```
-        public static class WeatherDailyModel {
-            /**
-             * date : 2016-05-30
-             * text_day : 多云
-             * code_day : 4
-             * text_night : 阴
-             * code_night : 9
-             * high : 34
-             * low : 22
-             */
-            private String date;
-            private String text_day;
-            private int code_day;
-            private String text_night;
-            private int code_night;
-            private int high;
-            private int low;
+
+#### Activity里面获取数组设置到RecyclerView里面去
+```java
+private void initView() {
+    //得到控件
+    mRecyclerView = (RecyclerView) findViewById(R.id.id_recyclerview_horizontal);
+    //设置布局管理器
+    LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+    layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+    mRecyclerView.setLayoutManager(layoutManager);
+}
+```
+
+```java
+private void fillDatatoRecyclerView(List<WeatherDailyModel> daily) {
+    mWeatherModels = daily;
+    Collections.sort(daily, new Comparator<WeatherDailyModel>() {
+        @Override
+        public int compare(WeatherDailyModel lhs,
+                            WeatherDailyModel rhs) {
+            // 排序找到温度最低的，按照最低温度升序排列
+            return lhs.getLow() - rhs.getLow();
         }
-```
+    });
 
-#### 2.4Activity里面获取数组设置到RecyclerView里面去
-```
-    private void initView() {
-        //得到控件
-        mRecyclerView = (RecyclerView) findViewById(R.id.id_recyclerview_horizontal);
-        //设置布局管理器
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
-        mRecyclerView.setLayoutManager(layoutManager);
+    int low = daily.get(0).getLow();
 
-    }
-```
+    Collections.sort(daily, new Comparator<WeatherDailyModel>() {
+        @Override
+        public int compare(WeatherDailyModel lhs,
+                            WeatherDailyModel rhs) {
+            // 排序找到温度最高的，按照最高温度降序排列
+            return rhs.getHigh() - lhs.getHigh();
+        }
+    });
+    int high = daily.get(0).getHigh();
 
-```
-    private void fillDatatoRecyclerView(List<WeatherDailyModel> daily) {
-        mWeatherModels = daily;
-        Collections.sort(daily, new Comparator<WeatherDailyModel>() {
-            @Override
-            public int compare(WeatherDailyModel lhs,
-                               WeatherDailyModel rhs) {
-                // 排序找到温度最低的，按照最低温度升序排列
-                return lhs.getLow() - rhs.getLow();
-            }
-        });
-
-        int low = daily.get(0).getLow();
-
-        Collections.sort(daily, new Comparator<WeatherDailyModel>() {
-            @Override
-            public int compare(WeatherDailyModel lhs,
-                               WeatherDailyModel rhs) {
-                // 排序找到温度最高的，按照最高温度降序排列
-                return rhs.getHigh() - lhs.getHigh();
-            }
-        });
-        int high = daily.get(0).getHigh();
-
-        mWeaDataAdapter = new WeaDataAdapter(this, mWeatherModels, low, high);
-        mRecyclerView.setAdapter(mWeaDataAdapter);
-    }
+    mWeaDataAdapter = new WeaDataAdapter(this, mWeatherModels, low, high);
+    mRecyclerView.setAdapter(mWeaDataAdapter);
+}
 ```
 这样其实就搞定了，WeatherLineView可能比较麻烦一点吧，但是只要是想清楚了，就很好了，从上面也看到WeatherLineView没什么含金量的，就是很普通的绘制。

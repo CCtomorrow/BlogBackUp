@@ -4,12 +4,13 @@ date: 2016-07-14 00:40:40
 tags: [Custom View]
 categories: [Android,Custom View]
 ---
+
 这次分析ViewGroup的事件分发了。
 
 这次的博客是看了[http://blog.csdn.net/lfdfhl/article/details/51603088](http://blog.csdn.net/lfdfhl/article/details/51603088)的分析的,这篇文章写的很好，值得一看，其次，对于View的事件分发比ViewGroup简单太多。
 
 事件一般先传到Activity的dispatchTouchEvent。
-```
+```java
 // Android 6.0 代码
 public boolean dispatchTouchEvent(MotionEvent ev) {
     if (ev.getAction() == MotionEvent.ACTION_DOWN) {
@@ -26,7 +27,7 @@ public boolean dispatchTouchEvent(MotionEvent ev) {
 <!-- more -->
 
 下面说ViewGroup对事件分发的处理。
-```
+```java
 // 代码是Android6.0的
 if (actionMasked == MotionEvent.ACTION_DOWN) {
     cancelAndClearTouchTargets(ev);
@@ -34,7 +35,7 @@ if (actionMasked == MotionEvent.ACTION_DOWN) {
 }
 ```
 首先在ACTION_DOWN做一些初始化操作，清除状态，这个不重要。继续看后面。
-```
+```java
 final boolean intercepted;
 // ACTION_DOWN或者mFirstTouchTarget不为null，很明显第一次ACTION_DOWN
 // 的时候肯定是为null的
@@ -70,7 +71,7 @@ mFirstTouchTarget的两种情况:
 如果不是ACTION_DOWN事件并且mFirstTouchTarget为null，那么直接将intercepted设置为true，表示ViewGroup拦截Touch事件。
 更加直白地说：如果ACTION_DOWN没有被子View消费(mFirstTouchTarget为null)那么当ACTION_MOVE和ACTION_UP到来时ViewGroup不再去调用onInterceptTouchEvent()判断是否需要拦截而是直接的将intercepted设置为true表示由其自身处理Touch事件
 
-```
+```java
 if (dispatchTransformedTouchEvent(ev, false, child, idBitsToAssign)) {
   mLastTouchDownTime = ev.getDownTime();
     if (preorderedList != null) {
@@ -92,7 +93,7 @@ if (dispatchTransformedTouchEvent(ev, false, child, idBitsToAssign)) {
 ```
 如果事件没有被拦截并且也没有取消。分发ACTION_DOWN事件:
 首先需要找到当前用户按的是哪个View，如果找到就调用dispatchTransformedTouchEvent去分发ACTION_DOWN事件，这个时候就要注意了
-```
+```java
 private TouchTarget addTouchTarget(View child, int pointerIdBits) {
     TouchTarget target = TouchTarget.obtain(child, pointerIdBits);
     target.next = mFirstTouchTarget;
@@ -103,8 +104,7 @@ private TouchTarget addTouchTarget(View child, int pointerIdBits) {
 如果子View消费了ACTION_DOWN事件就会把当前的View添加到mFirstTouchTarget的链表的表头。
 mFirstTouchTarget = target;
 并为其设置值，mFirstTouchTarget就不会为null了，这里要记住是子View消费了事件的。
-
-```
+```java
 if (mFirstTouchTarget == null) {
   handled = dispatchTransformedTouchEvent(ev, canceled, null,
             TouchTarget.ALL_POINTER_IDS);
@@ -143,14 +143,14 @@ if (mFirstTouchTarget == null) {
 它表示Touch事件被ViewGroup拦截了根本就没有派发给子view或者虽然派发了但是在第四步中没有找到能够消费Touch事件的子View。
 2.mFirstTouchTarget != null，表示找到了能够消费Touch事件的子View。
 1.处理ACTION_DOWN
-```
+```java
 if (alreadyDispatchedToNewTouchTarget && target == newTouchTarget) {
     handled = true;
 }
 ```
 如果mFirstTouchTarget！=null则说明在第四步中Touch事件已经被消费，所以不再做其他处理
 2.  处理ACTION_MOVE和ACTION_UP
-```
+```java
 else {
     final boolean cancelChild = resetCancelNextUpFlag(target.child)
             || intercepted;
@@ -172,7 +172,7 @@ else {
 ```
 调用dispatchTransformedTouchEvent()将事件分发给子View处理
 
-```
+```java
 if (canceled|| actionMasked == MotionEvent.ACTION_UP
   || actionMasked == MotionEvent.ACTION_HOVER_MOVE) {
         resetTouchState();
@@ -187,7 +187,7 @@ if (canceled|| actionMasked == MotionEvent.ACTION_UP
 
 
 还有一点，事件分发给子View的时候调用下面的方法
-```
+```java
 private boolean dispatchTransformedTouchEvent(MotionEvent event, boolean cancel,View child, int desiredPointerIdBits) {
     final boolean handled;
     // 代码简化
@@ -202,7 +202,7 @@ private boolean dispatchTransformedTouchEvent(MotionEvent event, boolean cancel,
 上面多次调用这个方法，如果ViewGroup拦截了Touch事件或者子View不能消耗掉Touch事件，那么ViewGroup会在其自身的onTouch()，onTouchEvent()中处理Touch如果子View消耗了Touch事件父View就不能再处理Touch.
 
 图示:
-![ViewGroup事件分发](http://dd089a5b.wiz03.com/share/resources/28be0556-fc11-4a81-925b-7a5b5a3ff92c/index_files/83827239.png)
+![ViewGroup事件分发](/images/viewgroup_event_dispatch.png)
 
 问题:
 ViewGroup将ACTION_DOWN分发给子View，如果子View没有消费该事件，那么当ACTION_MOVE和ACTION_UP到来的时候系统还会将Touch事件派发给该子View么？

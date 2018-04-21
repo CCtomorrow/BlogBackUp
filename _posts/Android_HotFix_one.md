@@ -4,9 +4,6 @@ date: 2016-07-27 23:15:40
 tags: [HotFix]
 categories: [Android,HotFix]
 ---
-### Android ClassLoader
-
-
 
 ### 前言
 这次博客会分两篇，这篇介绍各个Android版本是怎么反射加载生成的patch文件的，下篇会详细的分析class对比和patch的生成。
@@ -14,21 +11,17 @@ categories: [Android,HotFix]
 写这次文章的原因是因为最近在研究热修复，发现其实他们实现的代码很少，其实就一个类，然后里面针对不同的版本做反射处理，就想好好找找不同版本的对于类加载的机制。
 其次呢，关于bug版本和修复版本的class文件对比，dex的patch文件生成的脚本也想了解一下。
 
-
-
-### 区别
+### Android ClassLoader区别
 首先Android中加载类一般使用的是`PathClassLoader`和`DexClassLoader`。
 区别:
 `PathClassLoader`
-
-*   Android uses this class for its system class loader and for its application class
+* Android uses this class for its system class loader and for its application class
     loader(s).
 
 可以看出，Android是使用这个类作为其系统类和应用类的加载器。并且对于这个类呢，只能去加载已经安装到Android系统中的apk文件。
 
 `DexClassLoader`
-
-*   A class loader that loads classes from {@code .jar} and {@code .apk} files
+* A class loader that loads classes from {@code .jar} and {@code .apk} files
     containing a {@code classes.dex} entry. This can be used to execute code not
     installed as part of an application.
 
@@ -49,12 +42,10 @@ categories: [Android,HotFix]
 [https://github.com/Evervolv/android_libcore](https://github.com/Evervolv/android_libcore)
 这个库里面可以找到不同版本的lib_core的实现。
 
-
-
 #### Gingerbread 2.3 9
 首先看**Gingerbread**的实现，在2.3的时候PathClassLoader和DexClassLoader是分别实现的。着重看findClass方法。
 PathClassLoader
-```
+```java
 private final String path;
 
 private final String[] mPaths;
@@ -94,7 +85,7 @@ throw new ClassNotFoundException(name + " in loader " + this);
 这里其实只能对mDexs[]处理，其余的zip，files并不能处理，后面有注释说明，详细的可以看源代码。
 
 DexClassLoader
-```
+```java
 private final File[] mFiles; // source file Files, for rsrc URLs
 private final ZipFile[] mZips; // source zip files, with resources
 private final DexFile[] mDexs; // opened, prepped DEX files
@@ -119,7 +110,7 @@ protected Class<?> findClass(String name) throws ClassNotFoundException {
 可以看到也只是可以从加载进来的dex文件里面找Class。
 
 所以，热修复对他的反射处理如下:
-```
+```java
 /**
  * Installer for platform versions 4 to 13.
  */
@@ -166,12 +157,10 @@ protected Class<?> findClass(String name) throws ClassNotFoundException {
 ```
 实现即是这样的，其实很简单啦，就是把patch的dex文件路径加到path里面，再使用反射修改掉里面的四个字段，重新赋值。
 
-
-
 #### Ice 4.0 14
 然后**Ice**的实现，看在4.0的具体实现。在4.0以后DexClassLoader和PathClassLoader都继承了BaseDexClassLoader，处理的代码都在BaseDexClassLoader里面。
 BaseDexClassLoader
-```
+```java
 @Override
 protected Class<?> findClass(String name) throws ClassNotFoundException {
     Class clazz = pathList.findClass(name);
@@ -183,7 +172,7 @@ protected Class<?> findClass(String name) throws ClassNotFoundException {
 ```
 代码很简洁，可以看到findClass是使用的DexPathList的实例，pathList去找到对应的class。
 DexPathList里面的findClass
-```
+```java
 public Class findClass(String name) {
     for (Element element : dexElements) {
         DexFile dex = element.dexFile;
@@ -199,7 +188,7 @@ public Class findClass(String name) {
 ```
 从dexElements里面寻找，所以需要使用反射修改掉dexElements，即dex数组文件。
 相关实现如下:
-```
+```java
 /**
  * Installer for platform versions 14, 15, 16, 17 and 18.
  */
@@ -239,11 +228,9 @@ public Class findClass(String name) {
 ```
 实现也挺简单，直接把我们要加的dex文件添加dexElements数组的最前面即可。
 
-
-
 #### kitkat 4.4 19
 BaseDexClassLoader
-```
+```java
 protected Class<?> findClass(String name) throws ClassNotFoundException {
     List<Throwable> suppressedExceptions = new ArrayList<Throwable>();
     Class c = pathList.findClass(name, suppressedExceptions);
@@ -258,7 +245,7 @@ protected Class<?> findClass(String name) throws ClassNotFoundException {
 }
 ```
 DexPathList
-```
+```java
 public Class findClass(String name, List<Throwable> suppressed) {
     for (Element element : dexElements) {
         DexFile dex = element.dexFile;
@@ -278,7 +265,7 @@ public Class findClass(String name, List<Throwable> suppressed) {
 ```
 可以看到只是新增了一些异常，合成dex文件的时候需要传递多一个参数用来存储找寻每个dex文件发生异常IO信息。
 对应的处理:
-```
+```java
 /**
  * Installer for platform versions 19.
  */
@@ -352,7 +339,6 @@ makeDexElements方法作了反射调用，并且如果找寻我们自己的新�
 5.X的这部分代码并没有什么差别。
 
 关于6.0和7.0的，这里并没有代码，现在就不分析，找到代码会继续分析。其实思路很简单，一个版本一个版本的去对比findClass的实现的差别，然后调整反射调用的代码。
-
 
 具体可以看Github上面的两个开源库:
 [https://github.com/bunnyblue/DroidFix](https://github.com/bunnyblue/DroidFix)

@@ -9,7 +9,7 @@ categories: [Android,HotFix]
 
 这篇文章会着重介绍gradle相关的知识，所以估计两篇文章很难写完了，最少也是三篇。
 
-#### groovy相关的文章推荐:
+### groovy相关的文章推荐
 [http://jiajixin.cn/2015/08/07/gradle-android/](http://jiajixin.cn/2015/08/07/gradle-android/)
 这篇文章是讲Gradle相关的知识，但是里面有提到需要学习的groovy和gradle的资源，值得一看。
 [http://www.ibm.com/developerworks/cn/education/java/j-groovy/j-groovy.html](http://www.ibm.com/developerworks/cn/education/java/j-groovy/j-groovy.html)
@@ -19,12 +19,12 @@ IBM社区的精通groovy，浅显易懂。
 
 我们了解groovy的基本语法也就够用了。
 
-#### 使用Android Studio开发gradle插件文章推荐:
+### 使用Android Studio开发gradle插件文章推荐
 [http://blog.csdn.net/sbsujjbcy/article/details/50782830](http://blog.csdn.net/sbsujjbcy/article/details/50782830)
 这篇文章介绍的很详细，同时这个博主还写了一篇关于热修复的文章，[Android 热修复使用Gradle Plugin1.5改造Nuwa插件](http://blog.csdn.net/sbsujjbcy/article/details/50839263)，大家可以去看一下。
 我自己也写了一个关于使用Android Studio创建并开发gradle插件的Demo，在我的Github上面[https://github.com/qingyongai/GradlePluginDemo](https://github.com/qingyongai/GradlePluginDemo)。可以下载下来运行，参考。
 
-#### 1.闭包
+### 闭包
 还是说一下闭包，也方便自己以后复习。
 闭包，英文叫Closure。闭包，是一种数据类型，它代表了一段可执行的代码。
 ```
@@ -75,7 +75,7 @@ testClosure (4, "test", {
 
 <!-- more -->
 
-#### gradle知识
+### gradle知识
 gradle是一个编程框架，相当于对groovy封装的一个框架。
 [https://docs.gradle.org/current/dsl/](https://docs.gradle.org/current/dsl/)
 这个是Gradle的API文档，没事多翻翻。
@@ -86,18 +86,25 @@ Gradle中，每一个待编译的工程都叫一个Project。每一个Project在
 还有一个settings.gradle，配置这个multiprojects包含多少个子Project。
 
 一些好用的命令:
-gradle projects 查看当前工程有多少Project
-![gradle peojects](http://dd089a5b.wiz03.com/share/resources/24cddb39-5cd0-4eaf-9964-7da473c0e147/index_files/84502783.png)
+```
+gradlew projects 查看当前工程有多少Project
+```
+![gradle peojects](/images/gradlew_task_peojects.png)
 
 gradle tasks 当前工程包含哪些task
+```
 gradle project-path:tasks 查看某个Project的tasks
-![gradle tasks](http://dd089a5b.wiz03.com/share/resources/24cddb39-5cd0-4eaf-9964-7da473c0e147/index_files/84510869.png)
+```
+![gradle tasks](/images/gradlew_task_tasks.png)
+这里这个图并没有列完。
 
+```
 gradle task name 执行某个任务
-![gradle task name](http://dd089a5b.wiz03.com/share/resources/24cddb39-5cd0-4eaf-9964-7da473c0e147/index_files/84522147.png)
+```
+![gradle task name](/images/gradlew_task_clean.png)
 
-gradle工作流程
-![gradle work](http://dd089a5b.wiz03.com/share/resources/24cddb39-5cd0-4eaf-9964-7da473c0e147/index_files/84531084.png)
+gradle工作流程:
+![gradle work](/images/gradlew_work.png)
 图片取自[http://blog.csdn.net/innost/article/details/48228651](http://blog.csdn.net/innost/article/details/48228651)
 
 过程:
@@ -107,7 +114,7 @@ gradle工作流程
 
 Gradle主要有三种对象:
 Gradle:当前项目的gradle环境信息，可以拿到当前使用的gradle工具的信息。
-![gradle环境](http://dd089a5b.wiz03.com/share/resources/24cddb39-5cd0-4eaf-9964-7da473c0e147/index_files/84541268.png)
+![gradle环境](/images/gradlew_env.png)
 
 Project:每一个build.gradle文件都会转换成一个Project对象。
 嗯，这个区看一下文档比较好，英语也不是太难。
@@ -116,24 +123,24 @@ Project包含若干Tasks，Project对应具体的工程，需要为Project加载
 
 Setting:setting.gradle文件就是了。
 
-##### Task
+#### Task
 Task是Gradle中的一种数据类型，它代表了一些要执行或者要干的工作。不同的插件可以添加不同的Task。每一个Task都需要和一个Project关联。
 Task是和Project关联的，所以，我们要利用Project的task函数来创建一个Task。
 
 Android Studio创建项目一般目录结构是这样的:
-![初始化](http://dd089a5b.wiz03.com/share/resources/24cddb39-5cd0-4eaf-9964-7da473c0e147/index_files/84549820.png)
+![初始化](/images/android_project_stuct.png)
 
 **setting.gradle解析**
 首先被解析的是setting.gradle，该文件将会在初始化时期执行，并且定义了哪一个模块将会被构建。举个例子，上述setting.gradle包含了app模块，setting.gradle是针对多模块操作的，所以单独的模块工程完全可以删除掉该文件。在这之后，Gradle会为我们创建一个Setting对象。
 
 **根目录的build.gradle**
-![根目录](http://dd089a5b.wiz03.com/share/resources/24cddb39-5cd0-4eaf-9964-7da473c0e147/index_files/84563243.png)
+![根目录](/images/root_build_gradle.png)
 buildscript方法是定义了全局的相关属性，repositories定义了jcenter作为仓库。一个仓库代表着你的依赖包的来源，例如maven仓库。dependencies用来定义构建过程。这意味着你不应该在该方法体内定义子模块的依赖包，你仅仅需要定义默认的Android插件就可以了，因为该插件可以让你执行相关Android的tasks。
 
 allprojects方法可以用来定义各个模块的默认属性，你可以不仅仅局限于默认的配置，你可以自己创造tasks在allprojects方法体内，这些tasks将会在所有模块中可见。
 
 **模块内的build.gradle**
-![模块的gradle文件](http://dd089a5b.wiz03.com/share/resources/24cddb39-5cd0-4eaf-9964-7da473c0e147/index_files/84575850.png)
+![模块的gradle文件](/images/module_build_gradle.png)
 模块内的gradle文件只对该模块起作用，而且其可以重写任何的参数来自于根目录下的gradle文件。
 
 **基本的tasks**
@@ -141,23 +148,23 @@ android插件依赖于Java插件，而Java插件依赖于base插件。
 base插件有基本的tasks生命周期和一些通用的属性。
 base插件定义了例如assemble和clean任务，Java插件定义了check和build任务，这两个任务不在base插件中定义。
 这些tasks的约定含义：
-*   assemble: 集合所有的output
-*   clean: 清除所有的output
-*   check: 执行所有的checks检查，通常是unit测试和instrumentation测试
-*   build: 执行所有的assemble和check
+* assemble: 集合所有的output
+* clean: 清除所有的output
+* check: 执行所有的checks检查，通常是unit测试和instrumentation测试
+* build: 执行所有的assemble和check
 Java插件同时也添加了source sets的概念。
 
 **Android tasks**
 android插件继承了这些基本tasks,并且实现了他们自己的行为：
-*   assemble 针对每个版本创建一个apk
-*   clean 删除所有的构建任务，包含apk文件
-*   check 执行Lint检查并且能够在Lint检测到错误后停止执行脚本
-*   build 执行assemble和check
+* assemble 针对每个版本创建一个apk
+* clean 删除所有的构建任务，包含apk文件
+* check 执行Lint检查并且能够在Lint检测到错误后停止执行脚本
+* build 执行assemble和check
 默认情况下assemble tasks定义了assembleDebug和assembleRelease，当然你还可以定义更多构建版本。除了这些tasks,android 插件也提供了一些新的tasks:
-*   connectedCheck 在测试机上执行所有测试任务
-*   deviceCheck 执行所有的测试在远程设备上
-*   installDebug和installRelease 在设备上安装一个特殊的版本
-*   所有的install task对应有uninstall 任务
+* connectedCheck 在测试机上执行所有测试任务
+* deviceCheck 执行所有的测试在远程设备上
+* installDebug和installRelease 在设备上安装一个特殊的版本
+* 所有的install task对应有uninstall 任务
 build task依赖于check任务，但是不依赖于connectedCheck或者deviceCheck，执行check任务的使用Lint会产生一些相关文件，这些报告可以在app/build/outputs中查看
 
 gradle插件开发的话，其实需要看gradle的文档以及Android gradle工具的文档，这样才知道里面有什么属性，什么时候去拦截什么方法。

@@ -4,6 +4,7 @@ date: 2016-08-12 23:43:40
 tags: [Jenkins]
 categories: [Android,Jenkins]
 ---
+
 当时也是花费了不少时间来配置Jenkins自动打包的问题，觉得还是需要记录一下。
 1.安装Jenkins，这个很简单，不需要多说。
 2.下载Git Plugin，Gradle Plugin，Android Emulator Plugin（这个可以配置SDK路径，觉得这个插件挺好），
@@ -20,15 +21,14 @@ root是指当前的用户
 生成公钥和私钥:
 ssh-keygen -t rsa -C "email"
 
-
-邮件配置：
+邮件配置:
 Default Subject
 ```
 构建通知:$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!
 ```
 
 Default Content
-```
+```html
 <hr/>
 
 (本邮件是程序自动下发的，请勿回复！)<br/><hr/>
@@ -47,6 +47,7 @@ Default Content
 
 变更集:${JELLY_SCRIPT,template="html"}<br/><hr/>
 ```
+
 4.项目配置
 4.1构建一个自由风格的软件项目
 4.2git地址配置，我们是专门创建一个用户用来拉取项目打包，如果使用ssh记得配置私钥和公钥（我们是使用gitblit，需要在gitblit上面配置公钥，Jenkins里面配置私钥）

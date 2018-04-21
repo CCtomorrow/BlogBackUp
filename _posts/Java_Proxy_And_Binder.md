@@ -4,6 +4,7 @@ date: 2017-06-28 23:43:40
 tags: [插件化]
 categories: [Android,插件化]
 ---
+
 这次准备写一系列的关于自己学习插件化的过程了，前面虽然陆陆续续的学习了一些插件化方面的知识，但是都是淡淡续续的，这次要从基础开始了，其实我一直认为基础这个东西挺重要的。
 
 本文代码在我的Github上面:[Plugin Demo](https://github.com/qingyongai/PluginDemo/tree/understand_plugin/javaproxy)
@@ -21,25 +22,25 @@ Android中，本身并不提供这样的拦截机制，但是有时候，我们�
 上面的一段话取自[插件化知识详细分解及原理 之代理，hook，反射](http://blog.csdn.net/yulong0809/article/details/56842027)，感觉说的挺好。这里是不是就能感受到代理模式的强大了，下面会细说的。
 
 代理模式的意思就是为其他对象提供一种代理以控制对这个对象的访问，一般当我们无法或者不想直接访问某个对象或者访问某个对象存在困难时，可以用过一个代理对象来间接访问。(下图出自:[代理模式及Java实现动态代理](http://www.jianshu.com/p/6f6bb2f0ece9))
-![代理模式UML图](http://dd089a5b.wiz03.com/share/resources/74ce24d8-7c17-4545-b764-fc1d3820c181/index_files/86356234.png)
+![代理模式UML图](/images/proxy_uml_pic.png)
 java中的代理模式大概可以分为两种，一种就是普通的代理也就是静态代理，就是我们生成固定的代码，在我们运行前代理类的class编译文件就已经存在啦，动态代理与静态代理相反，在code阶段压根不需要知道代理谁，代理谁将会在代码的执行阶段通过一些判断来决定代理哪个对象。动态代理其实如果细分也可以分成两类，一类是JDK提供的代理，一类是[cglib](https://github.com/cglib/cglib)提供的代理类，他们的区别是:
 *JDK动态代理只能对实现了接口的类生成代理，而不能针对类 。
 CGLIB是针对类实现代理，主要是对指定的类生成一个子类，覆盖其中的方法 。
 因为是继承，所以该类或方法最好不要声明成final ，final可以阻止继承和多态。*
-##### 这里需要注意，因为是代理模式，肯定是需要真正代理某个类的，也就是说需要真正做事得类，然后对这个类进行代理。这点是基础，不然说不定你会越看越懵逼。
+**这里需要注意，因为是代理模式，肯定是需要真正代理某个类的，也就是说需要真正做事得类，然后对这个类进行代理。这点是基础，不然说不定你会越看越懵逼。**
 
 <!-- more -->
 
-##### 普通代理
+### 普通代理
 假设这样一个例子，小明要做某件事（自行脑补什么事），他不想自己做，想委托给别人做，那么这个代理怎么写呢。
 按照套路我们首先需要定义一个接口，里面有一个做事情的方法。
-```
+```java
 public interface IDoThing {
     void doSomeThing();
 }
 ```
 然后需要真正做事的类，小明，就像上面说的，这个是基础，这个都没有，代理个毛。
-```
+```java
 public class Xiaoming implements IDoThing {
     @Override
     public void doSomeThing() {
@@ -48,7 +49,7 @@ public class Xiaoming implements IDoThing {
 }
 ```
 然后是代理类的实现:
-```
+```java
 public class ProxyXiaoming implements IDoThing {
     private IDoThing mSubject;
     public ProxyXiaoming(IDoThing subject) {
@@ -61,7 +62,7 @@ public class ProxyXiaoming implements IDoThing {
 }
 ```
 最后是调用的时候啦:
-```
+```java
 public class ProxyMain {
 
     public static void main(String[] params) {
@@ -71,13 +72,12 @@ public class ProxyMain {
         // 要访问Xiaoming的doSomeThing()通过ProxyXiaoming去访问
         proxy.doSomeThing();
     }
-
 }
 ```
 
-##### JDK动态代理
+### JDK动态代理
 先说实现，然后细说一下。
-```
+```java
 public class InvocationProxy implements InvocationHandler {
 
     private Object target;
@@ -105,10 +105,9 @@ public class InvocationProxy implements InvocationHandler {
         System.out.println("事物结束");
         return result;
     }
-
 }
 ```
-```
+```java
 public class InvocationMain {
 
     public static void main(String[] params) {
@@ -134,15 +133,14 @@ public class InvocationMain {
 //        IDoThing iDoThing = (IDoThing) proxy.bind(new Xiaoming());
 //        iDoThing.doSomeThing();
     }
-
 }
 ```
 JDK实现动态代理主要涉及以下几个类:
 `java.lang.reflect.Proxy`:这是生成代理类的主类，通过 Proxy 类生成的代理类都继承了 Proxy 类。
 `java.lang.reflect.InvocationHandler`: 这里称他为"调用处理器"，简单说这个类就是，对我们需要的方法进行处理的，`invoke`方法会主动调用，我们需要的是处理它的内部实现。
 
-##### cglib动态代理
-```
+### cglib动态代理
+```java
 public class CglibProxy implements MethodInterceptor {
 
     private Object target;
@@ -173,10 +171,9 @@ public class CglibProxy implements MethodInterceptor {
         System.out.println("事物结束");
         return result;
     }
-
 }
 ```
-```
+```java
 public class CglibMain {
 
     public static void main(String[] params) {
@@ -184,18 +181,14 @@ public class CglibMain {
         Xiaoming xiaoming = (Xiaoming) proxy.getInstance(new Xiaoming());
         xiaoming.doSomeThing();
     }
-
 }
 ```
 是不是和jdk的动态代理差不多的。先创建代理对象，然后拦截方法的。
 
 看到上面写了一堆是不是感觉没什么用，是吧，这样想就对啦，这里列出一个实际的例子，比如我们有这样一个需求，需要在一定的范围内禁止掉`List`的`add`方法:
-```
+```java
     /**
      * 禁止List的add功能
-     *
-     * @param list
-     * @return
      */
     public static List getList(final List list) {
         return (List) Proxy.newProxyInstance(list.getClass().getClassLoader(),
@@ -213,16 +206,16 @@ public class CglibMain {
 ```
 哈哈，是不是很奇妙的。
 
-##### Hook Instrumentation创建Activity的方法
+### Hook Instrumentation创建Activity的方法
 我在[Android的资源管理器的创建过程](http://www.jianshu.com/p/db7a9e70cbdc)里面写到过，启动Activity即Activity的创建过程了的。
-![startActivity.png](http://dd089a5b.wiz03.com/share/resources/74ce24d8-7c17-4545-b764-fc1d3820c181/index_files/16802.png)
+![startActivity](/images/source_start_act.png)
 其实一般的时候我们Hook，需要找对点的，什么叫Hook点呢。
-![什么叫Hook点.png](http://dd089a5b.wiz03.com/share/resources/74ce24d8-7c17-4545-b764-fc1d3820c181/index_files/32375.png)
+![什么叫Hook点](/images/hook_point.png)
 这是[weishu](http://weishu.me/2016/01/28/understand-plugin-framework-proxy-hook/)大神说过的。
 这里，实际上使用了ActivityThread类的mInstrumentation成员的execStartActivity方法；注意到，ActivityThread 实际上是主线程，而主线程一个进程只有一个，因此这里是一个良好的Hook点。其实一个App的主入口就是ActivityThread，它里面有main方法的。
 所以我们可以拿到mMainThread然后修改掉它的mInstrumentation对象为我们的代理对象。
 实现如下:
-```
+```java
 public class HookHelper {
 
     /**
@@ -252,7 +245,7 @@ public class HookHelper {
 
 }
 ```
-```
+```java
 public class EvilInstrumentation extends Instrumentation {
 
     private static final String TAG = EvilInstrumentation.class.getSimpleName();
@@ -315,7 +308,7 @@ public class EvilInstrumentation extends Instrumentation {
 ```
 以上实现是weishu大神写的，我只是挪用。
 调用，由于这里只是举例，真正的插件化不会这么写的。
-```
+```java
 public class MainActivity extends BaseActivity {
 
     @Override
@@ -345,16 +338,15 @@ public class MainActivity extends BaseActivity {
         Intent intent = new Intent(this, LaunchedActivity.class);
         startActivity(intent);
     }
-
 }
 ```
 这里只是Hook了Context的startActivity，Activity是自己实现了startActivity的。
 
-##### 系统中的代理模式的使用
+### 系统中的代理模式的使用
 安卓系统中用到代理模式还是挺多的，与Binder相关的都是用到了代理模式的，关于Binder后面再说，我们平时写的AIDL都是用了代理模式的，一般在使用AIDL的时候，如果不需要跨进程就返回Binder本地对象，如果需要就返回代理对象。
 
 这里先说一一个具体的代理的例子，然后说一下Binder中的代理，顺便说一下Binder。
-![ActivityManagerService.jpg](http://dd089a5b.wiz03.com/share/resources/74ce24d8-7c17-4545-b764-fc1d3820c181/index_files/58195.png)
+![ActivityManagerService.jpg](/images/ams_proxy.png)
 
 这个例子是ActivityManagerProxy的代理实现，它代理了ActivityManagerService这个类，然后在调用使用IActivityManager里面的方法的时候，因为真正的实现是ActivityManagerService，这个是运行在系统的进程中的，我们要调用的话就要跨进程调用了，安卓跨进程这里使用的是Binder。
 
@@ -368,7 +360,7 @@ Binder的一般套路是这样，因为跨进程，所以是分为客户端和�
 就是说如果想用Binder实现跨进程，那么必须要继承这个类。
 然后再说客户端和服务端，其实客户端挺简单。
 客户端只需要实现对应的接口，这里是`IActivityManager`，然后实现里面的方法即可，那其实为什么需要跨进程，其实就是我们需要调用的方法在服务端里面，那这里我们实现这些方法要写什么呢，怎么写呢，其实也是有套路的。
-```
+```java
     public void unregisterReceiver(IIntentReceiver receiver) throws RemoteException
     {
         Parcel data = Parcel.obtain();
@@ -383,22 +375,22 @@ Binder的一般套路是这样，因为跨进程，所以是分为客户端和�
 ```
 随便找一个方法分析，其实就是构造一些参数，包括传递过去的和返回来的，然后使用`mRemote`这个对象去传递参数给服务端。所以在写AIDL的时候IDE可以帮我们自动生成代码，因为接口写完了的话，里面每个函数的实现套路都是一样的。
 服务端就麻烦一下，服务端需要继承`Binder`这个类并且实现接口，这里是`IActivityManager`，然后这里面就需要真的去实现`IActivityManager`接口里面想要做的事情了，这里需要注意下面的方法。
-```
+```java
 public boolean onTransact(int code, Parcel data, Parcel reply, int flags)
 ```
 这个方法即是前面客户端调用真正会调用到的服务端的方法，服务端先调用到这里，然后填入参数，然后才会去调用`IActivityManager `里面的具体实现的方法，如果有返回值，会写到`reply`里面的。
 
 Binder里面套路差不多都是这样的，左边圈起来的是客户端，右边是服务端，服务端里面有真正的实现。服务端也叫Binder本地对象，我们写AIDL的时候，如果不需要跨进程的话，返回的是Binder本地的对象，就是服务端的，因为他里面有真正的实现的方法。不过一般在自己写AIDL的时候，服务端的真正的需要使用的方法还是我们自己实现的，反而客户端是代理对象，里面虽然也实现了接口里面一样的方法，不过这些方法都是一些跨进程的操作，传递对象到服务端，等待服务端返回值。
 
-##### 系统中的Binder跨进程通信
+### 系统中的Binder跨进程通信
 然后说说系统中的Binder跨进程通信吧。framework层Binder类图如下:
-![framework的binder类](http://dd089a5b.wiz03.com/share/resources/74ce24d8-7c17-4545-b764-fc1d3820c181/index_files/83769.png)
+![framework的binder类](/images/framework_binder_class.png)
 图片取自[Gityuan博客](http://gityuan.com/2015/11/21/binder-framework/).
 关于这几个类的解释看他的博客就行了，这里就不抄袭了。
 在Android系统开机过程中，Zygote启动startReg会去注册一系列的方法，从而把Java层的方法和JNI方法绑定在一起的。
 例如:
 ===> AndroidRuntime.cpp---> register_jni_procs
-```
+```C
 /*static*/ int AndroidRuntime::startReg(JNIEnv* env)
 {
     ATRACE_NAME("RegisterAndroidNatives");
@@ -415,7 +407,7 @@ Binder里面套路差不多都是这样的，左边圈起来的是客户端，�
 注册JNI方法，其中gRegJNI是一个数组，记录所有需要注册的jni方法，其中有一项便是REG_JNI(register_android_os_Binder)。
 
 ===> android_util_Binder.cpp--->register_android_os_Binder
-```
+```C
 int register_android_os_Binder(JNIEnv* env)
 {
     if (int_register_android_os_Binder(env) < 0)
@@ -432,7 +424,7 @@ int register_android_os_Binder(JNIEnv* env)
 
 注册服务:
 ===>ServiceManager.java
-```
+```java
     public static void addService(String name, IBinder service) {
         try {
             getIServiceManager().addService(name, service, false);
@@ -449,7 +441,7 @@ int register_android_os_Binder(JNIEnv* env)
     }
 ```
 这里的就是刚上面说的，会注册java方法和JNI方法的映射。也就是会调用`android_util_Binder.cpp`里的`android_os_BinderInternal_getContextObject`方法。
-```
+```C
 ====>android_util_Binder.cpp
 static const JNINativeMethod gBinderInternalMethods[] = {
      /* name, signature, funcPtr */
@@ -460,21 +452,24 @@ static const JNINativeMethod gBinderInternalMethods[] = {
     { "handleGc", "()V", (void*)android_os_BinderInternal_handleGc }
 };
 ```
-```
+
+```C
 static jobject android_os_BinderInternal_getContextObject(JNIEnv* env, jobject clazz)
 {
     sp<IBinder> b = ProcessState::self()->getContextObject(NULL);
     return javaObjectForIBinder(env, b);
 }
 ```
+
 ===>ProcessState.cpp
-```
+```C
 sp<IBinder> ProcessState::getContextObject(const sp<IBinder>& /*caller*/)
 {
     return getStrongProxyForHandle(0);
 }
 ```
-```
+
+```C
 sp<IBinder> ProcessState::getStrongProxyForHandle(int32_t handle)
 {
     sp<IBinder> result;
@@ -503,8 +498,9 @@ sp<IBinder> ProcessState::getStrongProxyForHandle(int32_t handle)
 }
 ```
 ProcessState::self()->getContextObject()等价于 new BpBinder(0)。对于`javaObjectForIBinder `这个方法。
+
 ====>android_util_Binder.cpp
-```
+```C
 jobject javaObjectForIBinder(JNIEnv* env, const sp<IBinder>& val)
 {
     if (val == NULL) return NULL;
@@ -561,11 +557,12 @@ jobject javaObjectForIBinder(JNIEnv* env, const sp<IBinder>& val)
 }
 ```
 根据BpBinder(C++)生成BinderProxy(Java)对象. 主要工作是创建BinderProxy对象,并把BpBinder对象地址保存到BinderProxy.mObject成员变量. 到此，可知ServiceManagerNative.asInterface(BinderInternal.getContextObject()) 等价于:
-```
+```java
 ServiceManagerNative.asInterface(new BinderProxy())
 ```
+
 ServiceManagerNative.asInterface这个方法如下:
-```
+```java
  static public IServiceManager asInterface(IBinder obj)
 {
     if (obj == null) { //obj为BpBinder
@@ -579,7 +576,8 @@ ServiceManagerNative.asInterface这个方法如下:
     return new ServiceManagerProxy(obj);
 }
 ```
-```
+
+```java
 final class BinderProxy implements IBinder {
     public IInterface queryLocalInterface(String descriptor) {
         return null;
@@ -589,23 +587,23 @@ final class BinderProxy implements IBinder {
 由此，可知`ServiceManagerNative.asInterface(new BinderProxy()) `等价于`new ServiceManagerProxy(new BinderProxy())`.
 
 ===> ServiceManagerProxy--->addService
-```
-    public void addService(String name, IBinder service, boolean allowIsolated)
-            throws RemoteException {
-        Parcel data = Parcel.obtain();
-        Parcel reply = Parcel.obtain();
-        data.writeInterfaceToken(IServiceManager.descriptor);
-        data.writeString(name);
-        data.writeStrongBinder(service);
-        data.writeInt(allowIsolated ? 1 : 0);
-        mRemote.transact(ADD_SERVICE_TRANSACTION, data, reply, 0);
-        reply.recycle();
-        data.recycle();
-    }
+```java
+public void addService(String name, IBinder service, boolean allowIsolated)
+        throws RemoteException {
+    Parcel data = Parcel.obtain();
+    Parcel reply = Parcel.obtain();
+    data.writeInterfaceToken(IServiceManager.descriptor);
+    data.writeString(name);
+    data.writeStrongBinder(service);
+    data.writeInt(allowIsolated ? 1 : 0);
+    mRemote.transact(ADD_SERVICE_TRANSACTION, data, reply, 0);
+    reply.recycle();
+    data.recycle();
+}
 ```
 前面已经说了mRemote是BinderProxy了。
 ===>BinderProxy---> transactNative
-```
+```java
 public native boolean transactNative(int code, Parcel data, Parcel reply,
             int flags) throws RemoteException;
 ```

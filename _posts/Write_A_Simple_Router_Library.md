@@ -24,7 +24,7 @@ scheme://module/界面/params
 1.定义接口，让调用着可以去注册。
 2.写RouterManager类，去实现跳转。
 首先定义一个接口如下:
-```
+```java
 public interface IRoute {
     void initRouter(Map<String, Class<? extends Activity>> routers);
 }
@@ -34,7 +34,7 @@ public interface IRoute {
 <!-- more -->
 
 然后完成RouterManager大概如下所示。
-```
+```java
 public class RouterManager {
 
     private static volatile RouterManager sManager;
@@ -86,7 +86,7 @@ public class RouterManager {
 }
 ```
 使用者只需要在Application里面调用init方法即可。
-```
+```java
 public class RouterApplication extends Application {
 
     @Override
@@ -120,9 +120,9 @@ public class RouterApplication extends Application {
 
 注解处理器:一个在javac中，用来编译时扫描和处理的注解的工具。你可以为特定的注解(你自己写的注解啦)注册你自己的注解处理器。
 
-##### AbstractProcessor
+#### AbstractProcessor
 每一个处理器都是继承于AbstractProcessor。我们可以继承并复写一些里面的方法，这些方法java虚拟机会自动调用的。
-```
+```java
 public class MyProcessor extends AbstractProcessor {
     @Override
     public synchronized void init(ProcessingEnvironment env){ }
@@ -142,30 +142,29 @@ public class MyProcessor extends AbstractProcessor {
 指定你使用的java版本，通常这里直接返回`SourceVersion.latestSupported()`，可以看这个方法的具体实现。
 
 在java 7中，可以使用注解来代替最后的两个方法。
-```
+```java
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 @SupportedAnnotationTypes("com.ai.router.anno.Route")
 ```
 不过还是建议使用复写的方式吧。
 
-##### 注册你的处理器
+#### 注册你的处理器
 在你提供的jar包中，需要有特定的文件在META-INF/services中，文件名是`javax.annotation.processing.Processor`内容是处理器的路径，多个的就没行一个啦。类似下面。
+![注册处理器](/images/javax_annotation_processor.png)
 
-![注册处理器](http://dd089a5b.wiz03.com/share/resources/ab488f1a-bef5-45db-81bf-4b8f5503f69e/index_files/85465331.png)
-
-##### 处理器的编写
+#### 处理器的编写
 其实编写编译时注解处理器，首先要知道我们要干什么，上面一开始就把我们要干什么事情分析的很清楚了，我们需要写一个类，这个类去实现`IRoute`接口，在`initRouter`方法里面去实现关联Activity和URL。
-##### 注意
+#### 注意
 这个类实现完了，我们怎么调用，这个要想明白先。
 - 1.让使用者手动调用，因为这个类在MakeProject的时候是生成了的，并且类名我们都写死了，所以可以让使用者手动调用，这就会比较麻烦一些，我们只生成一个类，还好，如果生成的多了，使用者可能会崩溃。
 - 2.在提供对外使用的API中使用反射调用，原因和上面一样，类名是死的，就算不是死的，我们也知道类名的生成规则的。这就是上面提到的可能会用到一些反射的原因。
 
 编写编译时注解的library是有一定套路的，一般编写这种库，会建三个module，一个是只存放注解的库，一个是注解处理库(这个只是处理注解，并不会增加apk的大小啦)，一个是提供对外使用的API库，前面已经说到，其实这种库，注解处理器的作用很小的，只是提供某一个功能，其余的99%的功能都是对外使用的API库做的(就是说可以只有API库，其余的需要编译时注解处理的工作可以手动处理)。这个很重要，要记住。一般项目划分如下。
-![项目结构划分](http://dd089a5b.wiz03.com/share/resources/ab488f1a-bef5-45db-81bf-4b8f5503f69e/index_files/85486779.png)
+![项目结构划分](/images/apt_project_stuct.png)
 
-##### 注解库实现
+#### 注解库实现
 注解库只专注提供注解给API库和注解处理器库使用，本身并不做其他的操作。这里我们只需要一个注解即可，这个注解是使用在Activity上面的，就是类(继承自Activity的类)上面，所以这里就很简单啦。
-```
+```java
 package com.ai.router.anno;
 
 @Target(ElementType.TYPE)
@@ -177,9 +176,9 @@ public @interface Route {
 ```
 是不是觉得很简单(当然，这篇文章只是个入门篇，其实就算是只使用一个注解类，应该也不会这么简单的使用一个参数啦，这个其实跟你的路由框架的架构设计有关的，你的路由库准备怎样设计使用的路由，要不要使用scheme，要不要二级path，这个都是需要提前想好整个大体的框架，然后画个图，自己好好研究，写个库哪这么简单😢)。
 
-##### 注解处理库实现
+#### 注解处理库实现
 其实代码也特别少，这里先贴出代码，然后慢慢讲解的。
-```
+```java
 package com.ai.router.compiler;
 
 // @AutoService(Processor.class) // 生成META-INF等信息
@@ -282,11 +281,11 @@ public class RouterProcessor extends AbstractProcessor {
     }
 }
 ```
-##### 详细分析
+#### 详细分析
 - 1.init
 前面说啦，`ProcessingEnvironment`会携带一些有用的东西，我们后面需要用到，这里就把这些对象取出来，放在一个单独的类里面方便随时调用。
 `UtilManager`的实现如下，很简单。
-```
+```java
 public class UtilManager {
     /**
      * 一个用来处理TypeMirror的工具类
@@ -322,7 +321,7 @@ public class UtilManager {
 还可以通过Messager.printMessage()方法输出一些我们想要的信息。
 在注解处理的过程，源码的每个部分都是特定的Element。
 如下:
-```
+```java
 package com.example;    // PackageElement
 public class Foo {        // TypeElement
     private int a;      // VariableElement
@@ -339,7 +338,7 @@ public class Foo {        // TypeElement
 `Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(Route.class);`这句代码即是获取所有被`Route`注解的`Element`的。
 `if (!Utils.checkTypeValid(element)) continue;`
 这个是检测被`Route`修饰的`Element`是不是类(`TypeElement `)，并且是不是`Activity`的字类啦。检测的方法这里就不分析啦，GitHub上面的代码有注释，可以去看看。
-```
+```java
 TypeElement typeElement = (TypeElement) element;
 Route route = typeElement.getAnnotation(Route.class);
 targetInfos.add(new TargetInfo(typeElement, route.value()));
@@ -348,7 +347,7 @@ targetInfos.add(new TargetInfo(typeElement, route.value()));
 
 - 3.generateCode生成java文件
 我们其实已经知道我们最终需要的文件是什么样子的啦。
-```
+```java
 package com.ai.router.impl;
 public class AppRouter implements IRoute {
   @Override
@@ -363,13 +362,13 @@ public class AppRouter implements IRoute {
 
 - 4.Router API库编写
 上面一直说要实现的接口，其实定义在这个库里面的。
-```
+```java
 public interface IRoute {
     void initRouter(Map<String, Class<? extends Activity>> routers);
 }
 ```
 主要的功能实现类。
-```
+```java
 package com.ai.router;
 public class RouterManager {
 
@@ -432,7 +431,7 @@ public class RouterManager {
 
 - 5.使用
 Application里面
-```
+```java
 public class RouterApplication extends Application {
     @Override
     public void onCreate() {
@@ -447,8 +446,9 @@ public class RouterApplication extends Application {
 }
 ```
 打开对应的页面:
+```java
 `RouterManager.getManager().openResult(this, "activity/main");`
-
+```
 以上，一个最简单的使用编译时注解的Router框架就完成了，这篇文章着重讲了编译时注解的使用。一个Router框架不会这么简单的啦。
 
-### [本文代码在这里啦。](https://github.com/qingyongai/SimpleRouterDemo)
+### [本文代码](https://github.com/qingyongai/SimpleRouterDemo)

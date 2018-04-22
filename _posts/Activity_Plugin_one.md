@@ -4,7 +4,7 @@ date: 2017-08-22 21:35:40
 tags: [插件化]
 categories: [Android,插件化]
 ---
-#### 首先说明一下:
+### 说明
 本文的编写借鉴参考了大量的文章，有的可能是直接把文字拷贝过来的，我会在文中给出链接，如果有侵权，请联系我删除，谢谢。
 
 我们知道，启动Activity可以是通过Activity或者通过Context，这两种启动没有太大的区别，最终都是调用` Instrumentation`的方法来启动的，当然说是这样说，其实还是有区别滴，Activity的startActivity()方法可使用默认配置的LAUNCH FLAG，而Context的startActivity()须包含`FLAG_ACTIVITY_NEW_TASK`的LAUNCH FLAG，原因是该Context可能没有现存的任务栈供新建的Activity使用，必须显式指定生成一个自己单独的任务栈。
@@ -13,13 +13,13 @@ Activity启动发起后，通过Binder，最终由system_server进程中的AMS(A
 [startActivity启动过程分析](http://gityuan.com/2016/03/12/start-activity/)
 [Activity启动过程全解析](http://blog.csdn.net/zhaokaiqiang1992/article/details/49428287)
 
-﻿<!-- more -->
+<!-- more -->
 
 如果对上面的文章都不满意，或者还是有细节问题没搞清楚，可以这样:
-![](http://dd089a5b.wiz03.com/share/resources/b6b18d42-e833-4f63-82fe-c6213e78cba1/index_files/72736309.png)
+![搜索Activity的启动](/images/search_activity_start.png)
 嗯，都系你想要滴。
 这里直接贴出别人文章里面画的时序图了。
-![](http://dd089a5b.wiz03.com/share/resources/b6b18d42-e833-4f63-82fe-c6213e78cba1/index_files/72815267.png)
+![Activity启动的时序图](/images/activity_start_uml.png)
 说明:此图出处为[startActivity启动过程分析](http://gityuan.com/2016/03/12/start-activity/)
 
 下面列出一些重要类:
@@ -33,14 +33,14 @@ Activity启动发起后，通过Binder，最终由system_server进程中的AMS(A
 - TaskRecord，AMS抽象出来的一个“任务”的概念，是记录ActivityRecord的栈，一个“Task”包含若干个ActivityRecord。AMS用TaskRecord确保Activity启动和退出的顺序。如果你清楚Activity的4种launchMode，那么对这个概念应该不陌生。
 
 下面说几个问题:
-#### 1.启动`Activity`为什么这么复杂，需要跨进程?
+### 启动`Activity`为什么这么复杂，需要跨进程?
 一个原因是安卓的四大组件设计的都是允许某个组件运行在一个单独的进程中的，安卓里面所有的App进程都是`Zygote`进程fork出来的(*你不要想着自己创建进程，你创建出来的进程，他需要的一些系统资源你怎么给*)，如果我们的`Activity`组件配置了新的进程，是需要`Zygote`进程做事的，这就是一个跨进程了吧。这里说一下组件配置进程的方式。
 一般是通过在`AndroidManifest.xml`中`android:process`属性来实现的。
 当android:process属性值以”:”开头，则代表该进程是私有的，只有该App可以使用，其他应用无法访问；
 当android:process属性值不以”:“开头，则代表的是全局型进程，但这种情况需要注意的是进程名必须至少包含“.”字符。
 
 另一个原因是`Activity`的生命周期其实是由`system_server`进程中的`ActivityManagerService(AMS)`管理的，除了onCreate是在new出来之后就本进程调用外，其余的都是AMS管理的。我们看`IActivityManager`接口就知道。
-```
+```java
 public interface IActivityManager extends IInterface {
     public void finishSubActivity(IBinder token, String resultWho, int requestCode) throws RemoteException;
     public boolean finishActivityAffinity(IBinder token) throws RemoteException;
@@ -72,20 +72,18 @@ public interface IActivityManager extends IInterface {
 ```
 为什么`Activity`的生命周期需要`system_server`来管理么，不是我的人生我做主么，这个问题大概想一下就知道，我们现在在使用一个App，停留在A界面并且正在播放小视频，突然有人来了，so赶紧按了Home键，这个时候切换进程回到了桌面Launcher进程，这个时候我们肯定是希望A界面的视频停止播放啊，这个时候如果是App自己管理生命，App根本不知道现在已经处于桌面了，所以很明显这一个简单的场景就知道`Activity`的生命周期自己回调管理是不存在的。
 
-
-#### 2.`Activity`是怎么怎么跨进程和`ActivityManagerService`通信的?
+### `Activity`是怎么怎么跨进程和`ActivityManagerService`通信的?
 这个答案是很明显是通过`Binder`的，但是具体`Binder`怎么通信的，这个要说起来估计一篇文章也远远说不完。我在这里一时半会也说不清，而且，我现在的描述和对`Binder`的理解也没有特别到位，所以这里只说Framework层`Binder`的使用。
 
 Binder使用过程:
-##### 2.1.制定协议接口
+#### 制定协议接口
 `Binder`是C/S架构的，对应着`Client`端和`Server`端。要使用`Binder`，首先我们要定一个协议，就是客户端和服务端需要做什么事情，这里对应到Java端就是定一个客户端和服务端通用的接口，这个借口需要实现`IInterface`这个空接口，为什么要实现这个接口呢，这个接口里面定义了一个方法用于返回`Binder`对象，这个对象用于`Binder`通信使用。
-```
+```java
 /**
 * Base class for Binder interfaces.  When defining a new interface,
 * you must derive it from IInterface.
 */
-public interface IInterface
-{
+public interface IInterface {
     /**
     * Retrieve the Binder object associated with this interface.
     * You must use this instead of a plain cast, so that proxy objects
@@ -95,7 +93,7 @@ public interface IInterface
 }
 ```
 举例:这里直接拿`IApplicationThread`举例了，他是用于`system_server`进程来跨进程调用App方法，嗯，前面说的AMS是App进程跨进程调用`system_server`进程方法，刚好是相反滴，AIDL也是一样哒。
-```
+```java
 public interface IApplicationThread extends IInterface {
     void schedulePauseActivity(IBinder token, boolean finished, boolean userLeaving,
             int configChanges, boolean dontReport) throws RemoteException;
@@ -113,9 +111,9 @@ int SCHEDULE_RESUME_ACTIVITY_TRANSACTION = IBinder.FIRST_CALL_TRANSACTION+4;
 ```
 并且这里给每个方法编号，来标识每个方法。
 
-##### 2.2.服务端的实现
+#### 服务端的实现
 服务端的实现，继承`Binder`类，实现上面定义的公共接口`IApplicationThread`。然后实现里面的方法。
-```
+```java
 private class ApplicationThread extends ApplicationThreadNative {
 
     private void updatePendingConfiguration(Configuration config) {
@@ -138,7 +136,7 @@ private class ApplicationThread extends ApplicationThreadNative {
 }
 ```
 这些方法就真正办事情的方法，这里继承`Binder`了，还需要复写另外一个`onTransact`方法，因为都说了是跨进程调用肯定不能直接调用方法的，肯定是客户端和服务端用同样的上面接口定义的标识，然后根据标识调用到对应的方法的。
-```
+```java
 @Override
 public boolean onTransact(int code, Parcel data, Parcel reply, int flags)
         throws RemoteException {
@@ -167,9 +165,9 @@ public boolean onTransact(int code, Parcel data, Parcel reply, int flags)
 }
 ```
 
-##### 2.3.客户端的实现
+#### 客户端的实现
 客户端的实现，实现上面定义的公共接口`IApplicationThread`。然后实现里面的方法。
-```
+```java
 class ApplicationThreadProxy implements IApplicationThread {
     private final IBinder mRemote;
     
@@ -198,9 +196,9 @@ class ApplicationThreadProxy implements IApplicationThread {
 ```
 这里的实现方法只是把*要调用的方法的标识，传递的参数，通过mRemote写入Binder驱动，然后等待远程方法的调用，最后把结果通过Binder驱动写回来。*这里的`mRemote`其实指的是`BinderProxy`这个类，里面有native方法和Binder交互，具体是怎么知道是这个类的，你们还是去看文章吧，一时半会也说不清。
 
-##### 2.4.客户端和服务端的转换
+#### 客户端和服务端的转换
 我们可以从这里看出，`ActivityThread.attach`方法，这里呢，我们的App是服务端，AMS是客户端。最终调用的是AMS的代理类`ActivityManagerProxy`。
-```
+```java
 public void attachApplication(IApplicationThread app) throws RemoteException
 {
     Parcel data = Parcel.obtain();
@@ -214,7 +212,7 @@ public void attachApplication(IApplicationThread app) throws RemoteException
 }
 ```
 对应到服务端`ActivityManagerService`。首先onTransact里面:
-```
+```java
 case ATTACH_APPLICATION_TRANSACTION: {
     data.enforceInterface(IActivityManager.descriptor);
     IApplicationThread app = ApplicationThreadNative.asInterface(
@@ -228,11 +226,11 @@ case ATTACH_APPLICATION_TRANSACTION: {
 ```
 这里`data.readStrongBinder()`得到的是BinderProxy对象，就拿到了`ApplicationThreadProxy`，至于中间的层层转换也是Binder底层的操作。
 
-
-#### 3.`Activity`可以怎么HOOK?
+### `Activity`可以怎么HOOK?
 启动`Activity`，非常的简单，`startActivity`方法即可搞定，但是安卓有一个限制，*必须是在Manifest里面声明*的`Activity`才能被启动。嗯，这个校验过程并不在本地而在`ActivityManagerService`所在的`system_server`进程里面，并不能做什么手脚。
 所以现在是衍生出了一些解法，既然要启动的`Activity`必须是在Manifest里面注册，那可以提前注册一些`Activity`以供使用哒。嗯，关于这个也份两种做法。
-##### 3.1.代理`Activity`模式
+
+#### 代理`Activity`模式
 所谓代理`Activity`模式主要特点是这样:
 主项目APK注册一个代理Activity（命名为ProxyActivity），ProxyActivity是一个普通的Activity，但只是一个空壳，自身并没有什么业务逻辑。每次打开插件APK里的某一个Activity的时候，都是在主项目里使用标准的方式启动ProxyActivity，再在ProxyActivity的生命周期里同步调用插件中的Activity实例的生命周期方法，从而执行插件APK的业务逻辑。
 上面的特点描述出自:[代理Activity模式](http://kaedea.com/2016/06/10/android-dynamical-loading-06-proxy-activity/)
@@ -240,20 +238,19 @@ case ATTACH_APPLICATION_TRANSACTION: {
 代理`Activity`模式插件化框架的具体实现就是[dynamic-load-apk](https://github.com/singwhatiwanna/dynamic-load-apk)
 关于`Activity`定义了`DLPlugin`接口来表示:[DLPlugin](https://github.com/singwhatiwanna/dynamic-load-apk/blob/master/DynamicLoadApk/lib/src/com/ryg/dynamicload/DLPlugin.java)
 把Activity关键的生命周期方法抽象成DLPlugin接口，ProxyActivity通过DLPlugin代理调用插件Activity的生命周期。
-![](http://dd089a5b.wiz03.com/share/resources/b6b18d42-e833-4f63-82fe-c6213e78cba1/index_files/5034622.png)
-![](http://dd089a5b.wiz03.com/share/resources/b6b18d42-e833-4f63-82fe-c6213e78cba1/index_files/5172087.png)
-
+![DLPlugin](/images/dlplugin_interface.png)
+![DLProxyActivity](/images/dlproxy_activity.png)
 
 加载插件的时候，先解析apk文件，然后创建`ClassLoader`，`Resources`，这两个问题也是*特别麻烦*的两个问题，后面会说到，因为一时半会说不清楚。
 准备工作代码:[DLPluginManager](https://github.com/singwhatiwanna/dynamic-load-apk/blob/master/DynamicLoadApk/lib/src/com/ryg/dynamicload/internal/DLPluginManager.java)
-![](http://dd089a5b.wiz03.com/share/resources/b6b18d42-e833-4f63-82fe-c6213e78cba1/index_files/5599806.png)
+![preparePluginEnv](/images/prepare_plugin_env.png)
 启动`Activity`的核心代码也在这个类里面的:
-![](http://dd089a5b.wiz03.com/share/resources/b6b18d42-e833-4f63-82fe-c6213e78cba1/index_files/5829112.png)
+![startPluginActivityForResult](/images/start_plugin_activity_forresult.png)
 再看这个:
-![](http://dd089a5b.wiz03.com/share/resources/b6b18d42-e833-4f63-82fe-c6213e78cba1/index_files/5875206.png)
+![loadPluginClass](/images/dl_load_plugin_class.png)
 哈哈哈，是不是感觉[dynamic-load-apk](https://github.com/singwhatiwanna/dynamic-load-apk)的代码特别简单，轻松看懂，美滋滋，关于代理`Activity`模式的就说到这里，如果想要了解更多去阅读这个项目的源代码吧，说实话代码也特别好看懂，比别的插件化框架好懂太多，因为比较简单。
 
-##### 3.2.动态创建`Activity`模式
+#### 动态创建`Activity`模式
 其实上面的代码模式的`Activity`是有一定的缺陷的，比如开发要使用that关键字，启动的都是ProxyActivity，LaunchMode的问题等等。所以呢，后面有人继续研究，就出现了现在的动态创建`Activity`模式。
 先说一点，动态创建`Activity`的基础:
 1.需要对`Activity`的启动过程，Binder机制有一定的认识；
@@ -267,10 +264,9 @@ Hook startActivity 方法的时候，比较重一点的方式是Hook AMS，比�
 
 具体操作下一篇说。
 
-
-#### 4.`ClassLoader`处理?
+### `ClassLoader`处理
 `ClassLoader`如果不知道嘎哈的，必须先去了解一下咯。
-```
+```java
 private Activity performLaunchActivity(ActivityClientRecord r, Intent customIntent) {
     // ...
     Activity activity = null;
@@ -304,8 +300,8 @@ private Activity performLaunchActivity(ActivityClientRecord r, Intent customInte
 
 2.委托系统ClassLoader加载
 可以把我们的插件apk路径放到pathList的对象DexPathList的dexElements字段里面去，然后加载的时候就可以加载到了。
-![](http://dd089a5b.wiz03.com/share/resources/b6b18d42-e833-4f63-82fe-c6213e78cba1/index_files/81712625.png)
-![](http://dd089a5b.wiz03.com/share/resources/b6b18d42-e833-4f63-82fe-c6213e78cba1/index_files/81764585.png)
+![BaseDexClassLoader](/images/base_dex_class_loader.png)
+![DexPathList](/images/dex_path_lis.png)
 上面说的很不具体，详细的可以看我推荐的那篇文章。
 第一种方案，每一个插件都有一个自己的ClassLoader，因此类的隔离性非常好，如果不同的插件使用了同一个库的不同版本，就是不同的插件之前可以引用相同库的不同版本，然而这也就意味着，如果采用这种方案的话，插件之间，宿主与插件之间，想使用相同的库，都需要引入，这样会导致插件体积变大的。
 他也还有一个好处，如果插件需要升级，直接重新创建一个自定的ClassLoader加载新的插件，然后替换掉原来的版本即可（Java中，不同ClassLoader加载的同一个类被认为是不同的类）。
@@ -313,8 +309,8 @@ private Activity performLaunchActivity(ActivityClientRecord r, Intent customInte
 第二种方案，宿主和插件，插件和插件之间不能存在相同的类。插件升级了之后需要下次启动才能更新。关于这个有看到一个比较好的实现方案，在插件更新了之后也能立即更新的。他是通过替换掉系统的ClassLoader，然后也是每个插件对应一个ClassLoader，可以看看源码[ZeusClassLoader](https://github.com/iReaderAndroid/ZeusPlugin/blob/master/ZeusPlugin/src/main/java/zeus/plugin/ZeusClassLoader.java)。
 
 
-#### 5.资源处理?
+### 资源处理
 资源的处理，之前有篇文章略微提及了，[Android的资源管理器的创建过程](http://www.jianshu.com/p/db7a9e70cbdc)，这个也确实很麻烦，会再单独写一篇文章来说明。
 
-#### 6.结束语
+### 结束语
 讲完了？不存在的，因为`Activity`的起点涉及到很多，这里面只是讲了5个问题(第五个问题还没细说，逃)，下篇文章，会参考众多的开源的插件化项目，写一个比较完整的`Activity`的插件化的Demo，写了`Activity`的插件化的Demo之后，对说后面的BroadcastReceiver，Service，ContentProvider也有帮助。

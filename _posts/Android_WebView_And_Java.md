@@ -31,6 +31,8 @@ $(function () {
 <a href="javascript:void(0);">click here</a>
 ```
 
+<!-- more -->
+
 #### 关于传递参数的问题
 Android 中一般都只能接受一些 String，int 之类的，不能接收 JS 传递过来的对象，同时 Android 也无法将一个对象传递给 JS 函数，但是 IOS 可以，哈哈。
 在开发中，我们制定客户端和前端的交互的时候，一般采用的是 Json，所以这里就需要一个转换了，前端可以通过UA判断当前是 Android 还是 IOS 然后如果是 Android 的话，进行下面的转换。
@@ -50,8 +52,6 @@ encode: function (data) {
 ```
 其中 decode 方法是解析 Android 传递过来的 Json 字符串，转换成 JS 里面的 Json 对象。
 encode 是传递 Json 参数给 Android 客户端的时候，把 JS 里面的 Json 对象转换成字符串，然后再传递给 Android 客户端。
-
-<!-- more -->
 
 #### 判断当前的页面是否在自家产品内的浏览器打开的
 这个其实很简单啦，客户端和前端商量好指定一个协议，追加一个标识在客户端的内置浏览器的 UA 上面，前端去按照制定的协议解析即可。

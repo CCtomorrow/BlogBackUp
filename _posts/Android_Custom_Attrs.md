@@ -23,6 +23,8 @@ android:background="?attr/colorPrimary" />
 
 我们会好奇，这样怎么就能获取到值呢，这个属性是在哪里有定义的呢，关于怎么拿到值是另外一个问题了，现在来说一下这个值是在哪里定义的，并且在哪里赋的初始值的。
 
+<!-- more -->
+
 首先我们来找`actionBarSize`定义的地方，很明显这是一个系统的attr，那么我们直接去`Android.jar`的res/values/attrs里面去找即可。
 ![actionBarSize定义](/images/declare_actionBarSize.png)
 ```xml
@@ -42,8 +44,6 @@ android:background="?attr/colorPrimary" />
     <item name="actionBarSize">@dimen/action_bar_default_height</item>
 </style>
 ```
-
-<!-- more -->
 
 ### 实战自定义属性
 #### 定义自定义的属性

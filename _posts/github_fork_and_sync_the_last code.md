@@ -35,3 +35,5 @@ git merge upstream/master
 git push origin master
 ```
 就好了。
+
+<!-- more -->

@@ -16,6 +16,8 @@ categories: [Android,HotFix]
 我们一般对于可运行的app使用这个插件，对于lib的module使用下面的插件。
 ![lib插件](/images/gradle_library_plugin.png)
 
+<!-- more -->
+
 我们可以使用这两个插件，是因为，我们在根目录的build.gradle里面的buildscript有配置。类似下面:
 ![根目录配置](/images/gradle_root_classpath.png)
 

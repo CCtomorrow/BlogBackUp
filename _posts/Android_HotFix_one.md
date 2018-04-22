@@ -30,10 +30,10 @@ categories: [Android,HotFix]
 `DexClassLoader`
 构造函数：DexClassLoader(String dexPath, String optimizedDirectory, String libraryPath, ClassLoader parent)
 
-*   dexPath:被解压的dex路径，不能为空。
-*   optimizedDirectory：解压后的.dex文件的存储路径，不能为空。这个路径强烈建议使用应用程序的私有路径，不要放到sdcard上，否则代码容易被注入攻击。
-*   libraryPath：so库的存放路径，可以为空，若有so库，必须填写。
-*   parent：父亲加载器，一般为context.getClassLoader(),使用当前上下文的类加载器。
+* dexPath:被解压的dex路径，不能为空。
+* optimizedDirectory：解压后的.dex文件的存储路径，不能为空。这个路径强烈建议使用应用程序的私有路径，不要放到sdcard上，否则代码容易被注入攻击。
+* libraryPath：so库的存放路径，可以为空，若有so库，必须填写。
+* parent：父亲加载器，一般为context.getClassLoader(),使用当前上下文的类加载器。
 
 <!-- more -->
 

@@ -24,6 +24,8 @@ IBM社区的精通groovy，浅显易懂。
 这篇文章介绍的很详细，同时这个博主还写了一篇关于热修复的文章，[Android 热修复使用Gradle Plugin1.5改造Nuwa插件](http://blog.csdn.net/sbsujjbcy/article/details/50839263)，大家可以去看一下。
 我自己也写了一个关于使用Android Studio创建并开发gradle插件的Demo，在我的Github上面[https://github.com/qingyongai/GradlePluginDemo](https://github.com/qingyongai/GradlePluginDemo)。可以下载下来运行，参考。
 
+<!-- more -->
+
 ### 闭包
 还是说一下闭包，也方便自己以后复习。
 闭包，英文叫Closure。闭包，是一种数据类型，它代表了一段可执行的代码。
@@ -72,8 +74,6 @@ testClosure (4, "test", {
 
 2.确定groovy的参数
 多练，看API文档
-
-<!-- more -->
 
 ### gradle知识
 gradle是一个编程框架，相当于对groovy封装的一个框架。

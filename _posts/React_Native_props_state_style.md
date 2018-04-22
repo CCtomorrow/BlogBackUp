@@ -44,7 +44,6 @@ RN的Hello World程序如上面所示的。
 `AppRegistry`模块则是用来告知`React Native`哪一个组件被注册为整个应用的根容器。你无需在此深究，因为一般在整个应用里`AppRegistry.registerComponent`这个方法只会调用一次。上面的代码里已经包含了具体的用法，你只需整个复制到index.ios.js或是index.android.js文件中即可运行。
 *提示:*上面的话出自[编写Hello World](https://reactnative.cn/docs/0.44/tutorial.html#content)。
 
-
 <!-- more -->
 
 ### props

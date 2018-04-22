@@ -21,6 +21,8 @@ root是指当前的用户
 生成公钥和私钥:
 ssh-keygen -t rsa -C "email"
 
+<!-- more -->
+
 邮件配置:
 Default Subject
 ```

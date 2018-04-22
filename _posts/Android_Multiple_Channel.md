@@ -29,6 +29,8 @@ android {
 ```
 那如果我们没有配置的情况下，会默认为AndroidManifest文件中的package了。
 
+<!-- more -->
+
 ### manifestPlaceholders:AndroidManifest文件中的变量表示
 通过${PlaceHolder}表示PlaceHolder是可以被赋值的变量，如友盟统计中的渠道。
 ```xml
@@ -153,8 +155,6 @@ productFlavors.all { flavor ->
     android:name="UMENG_CHANNEL"
     android:value="${channel}"/>
 ```
-
-<!-- more -->
 
 ### 生成不同包名的包
 上面1.6中，我们配置了不同的渠道，这样配置了不同的渠道之后其实会有个操作，如果在src下面建立了相同的文件夹，会去读取里面的信息，然后和main里面的信息作合并。一般的应用为了渠道的aso都会要求打出不同的包名的包的，这个我们就可以利用这一点来处理。

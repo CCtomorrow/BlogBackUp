@@ -19,3 +19,5 @@ categories: [Android,other]
 ### 3.Android手机配置
 1.连接和Mac的同一个WIFI，同时设置此WIFI的代理服务器，ip即这台电脑连接的WIFI的ip，端口8888.
 2.Help --> SSL Proxying --> Save Charles Root Certificate 然后把证书拷贝到手机上面安装
+
+<!-- more -->

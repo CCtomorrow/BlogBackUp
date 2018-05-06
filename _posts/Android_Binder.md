@@ -44,5 +44,87 @@ Server向ServiceManager注册了Binder实体及其名字后，Client就可以通
 
 这里很重要，了解了这个知识我们才会知道，AIDL，以及四大组件通信的时候用到的`ApplicationThread`，`IIntentReceiver`，`IServiceConnection`，`IContentProvider`，其实都是匿名Binder，依赖AMS这个实名Binder的匿名Binder。
 
+#### Java层Binder
+![class_ServiceManager](/images/class_ServiceManager.jpg)
+我们使用AIDL接口的时候，经常会接触到这些类:IBinder/IInterface/Binder/BinderProxy/Stub，相关功能如下:
+- IBinder是一个接口，它代表了一种跨进程传输的能力；只要实现了这个接口，就能将这个对象进行跨进程传递；这是驱动底层支持的；在跨进程数据流经驱动的时候，驱动会识别IBinder类型的数据，从而自动完成不同进程Binder本地对象以及Binder代理对象的转换。
+- IBinder负责数据传输，那么client与server端的调用契约（这里不用接口避免混淆）呢？这里的IInterface代表的就是远程server对象具有什么能力。具体来说，就是aidl里面的接口。
+- Java层的Binder类，代表的其实就是Binder本地对象。BinderProxy类是Binder类的一个内部类，它代表远程进程的Binder对象的本地代理；这两个类都继承自IBinder, 因而都具有跨进程传输的能力；实际上，在跨越进程的时候，Binder驱动会自动完成这两个对象的转换。
+- 在使用AIDL的时候，编译工具会给我们生成一个Stub的静态内部类；这个类继承了Binder, 说明它是一个Binder本地对象，它实现了IInterface接口，表明它具有远程Server承诺给Client的能力；Stub是一个抽象类，具体的IInterface的相关实现需要我们手动完成，这里使用了策略模式。
 
-待续...
+### 细节问题
+#### 通信过程中mRemote是谁?
+直接说结论就是BinderProxy。
+[-> ServiceManager.java]
+```java
+private static IServiceManager getIServiceManager() {
+    if (sServiceManager != null) {
+        return sServiceManager;
+    }
+    // Find the service manager
+    sServiceManager = ServiceManagerNative.asInterface(BinderInternal.getContextObject());
+    return sServiceManager;
+}
+```
+其实jni和java层代码的对应关系，在`Zygote`进程启动的过程中`int AndroidRuntime::startReg(JNIEnv* env)`就注册了。
+有兴趣去看对应的分析文章或者源码:[Framework层Binder。](http://gityuan.com/2015/11/21/binder-framework/)
+
+[-> BinderInternal.java]===>[-> android_util_binder.cpp]
+```C++
+static jobject android_os_BinderInternal_getContextObject(JNIEnv* env, jobject clazz)
+{
+    sp<IBinder> b = ProcessState::self()->getContextObject(NULL);
+    return javaObjectForIBinder(env, b);
+}
+```
+对于`ProcessState::self()->getContextObject()`，又是另外的一个过程了，过程比较复杂，可以自己去看相应的分析的文章，结果就是`ProcessState::self()->getContextObject()`等价于 new BpBinder(0);
+`javaObjectForIBinder`方法里面有如何把JNI层的东西转换成JAVA层的。
+
+[-> android_util_binder.cpp]
+```C++
+jobject javaObjectForIBinder(JNIEnv* env, const sp<IBinder>& val) {
+    if (val == NULL) return NULL;
+
+    if (val->checkSubclass(&gBinderOffsets)) { //返回false
+        jobject object = static_cast<JavaBBinder*>(val.get())->object();
+        return object;
+    }
+
+    AutoMutex _l(mProxyLock);
+
+    jobject object = (jobject)val->findObject(&gBinderProxyOffsets);
+    if (object != NULL) { //第一次object为null
+        jobject res = jniGetReferent(env, object);
+        if (res != NULL) {
+            return res;
+        }
+        android_atomic_dec(&gNumProxyRefs);
+        val->detachObject(&gBinderProxyOffsets);
+        env->DeleteGlobalRef(object);
+    }
+
+    //创建BinderProxy对象
+    object = env->NewObject(gBinderProxyOffsets.mClass, gBinderProxyOffsets.mConstructor);
+    if (object != NULL) {
+        //BinderProxy.mObject成员变量记录BpBinder对象
+        env->SetLongField(object, gBinderProxyOffsets.mObject, (jlong)val.get());
+        val->incStrong((void*)javaObjectForIBinder);
+
+        jobject refObject = env->NewGlobalRef(
+                env->GetObjectField(object, gBinderProxyOffsets.mSelf));
+        //将BinderProxy对象信息附加到BpBinder的成员变量mObjects中
+        val->attachObject(&gBinderProxyOffsets, refObject,
+                jnienv_to_javavm(env), proxy_cleanup);
+
+        sp<DeathRecipientList> drl = new DeathRecipientList;
+        drl->incStrong((void*)javaObjectForIBinder);
+        //BinderProxy.mOrgue成员变量记录死亡通知对象
+        env->SetLongField(object, gBinderProxyOffsets.mOrgue, reinterpret_cast<jlong>(drl.get()));
+
+        android_atomic_inc(&gNumProxyRefs);
+        incRefsCreated(env);
+    }
+    return object;
+}
+```
+到此，可知`ServiceManagerNative.asInterface(BinderInternal.getContextObject())`等价于`ServiceManagerNative.asInterface(new BinderProxy())`。

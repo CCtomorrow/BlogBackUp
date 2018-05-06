@@ -1,5 +1,5 @@
 ---
-title: '插件化总结'
+title: '四大组件插件化总结'
 date: 2018-04-28 11:17:00
 tags: [插件化]
 categories: [Android,插件化]
@@ -10,8 +10,6 @@ categories: [Android,插件化]
 
 ### 四大组件的区别
 要针对四大组件插件化，那么到底要采取什么措施，是要看四大组件之间的区别的。
-| Activity | BroadcastReceiver | Service | ContentProvider |
-| -------- | ----------------- | ------- | --------------- |
 Activity
 ![activity_start](/images/activity_start_progress.png)
 - 启动模式

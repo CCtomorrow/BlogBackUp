@@ -7,7 +7,7 @@ categories: [Android,插件化]
 
 ### 前言
 对Binder的知识点做一些记录，以便日后复习。其中大部分的文字都可以从下面的文章中找到。
-[Android Bander设计与实现](https://blog.csdn.net/universus/article/details/6211589)
+[Android Binder设计与实现](https://blog.csdn.net/universus/article/details/6211589)
 [彻底理解Android Binder通信架构](http://gityuan.com/2016/09/04/binder-start-service/)
 [图文详解Binder机制原理](https://blog.csdn.net/carson_ho/article/details/73560642)
 

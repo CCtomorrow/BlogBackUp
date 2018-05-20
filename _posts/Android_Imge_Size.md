@@ -18,6 +18,7 @@ density是个可根据屏幕面板素质而设定的常数。简单来说，可�
 |desityDpi|160|240|320|480|560|640|
 
 drawable文件对应的desityDpi
+
 |drawable|ldpi|mdpi|hdpi|xhdpi|xxhdpi|xxxhdpi|
 |-|-|-|-|-|-|-|
 |desityDpi|120|160|240|320|480|640|

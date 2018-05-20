@@ -86,7 +86,7 @@ System.out.println("w:" + bitmap.getWidth()
 #### 2.读取SD卡的图片，正常大小
 
 #### 3.获取bitmap大小的api
-```
+```java
 public final int getByteCount() {
     // int result permits bitmaps up to 46,340 x 46,340
     return getRowBytes() * getHeight();

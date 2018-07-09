@@ -1,5 +1,5 @@
 ---
-title: 'JavaScript基础'
+title: 'JavaScript面向对象'
 date: 2018-07-02 18:13:00
 tags: [JavaScript]
 categories: [JavaScript]

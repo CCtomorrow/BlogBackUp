@@ -1,5 +1,5 @@
 ---
-title: 'Android NDK 学习篇一'
+title: 'Android NDK 学习一之开篇'
 date: 2018-11-15 23:43:40
 tags: [ndk]
 categories: [Android,ndk]

@@ -5,6 +5,10 @@ tags: [插件化]
 categories: [Android,插件化]
 ---
 
+[aapt2 适配之资源 id 固定](https://fucknmb.com/2017/11/15/aapt2%E9%80%82%E9%85%8D%E4%B9%8B%E8%B5%84%E6%BA%90id%E5%9B%BA%E5%AE%9A/)
+
+[再谈 aapt2 资源分区](https://fucknmb.com/2018/10/05/%E5%86%8D%E8%B0%88aapt2%E8%B5%84%E6%BA%90%E5%88%86%E5%8C%BA/)
+
 在buildTools 28.0.0以前，aapt2自带了资源分区，通过–package-id参数指定。但是该分区只支持>0x7f的PP段，而在Android 7.0之前，是不支持>0x7f的PP段资源的，运行时会抛异常。但是当指定了一个<0x7f的PP段资源后，编译资源时却会报错。
 ```
 error: invalid package ID 0x28. Must be in the range 0x7f-0xff..

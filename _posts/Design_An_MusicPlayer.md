@@ -1,5 +1,5 @@
 ---
-title: 'AAPT2的妙用'
+title: '实现一个简单的音乐播放器'
 date: 2020-05-31 18:08:00
 tags: [Service]
 categories: [Android,Service]
@@ -18,6 +18,7 @@ categories: [Android,Service]
 
 以上部分功能只做大致介绍
 
+<!-- more -->
 
 ### 播放服务实现
 可以参考安卓开发者官网的教程[在 Service 中使用 MediaPlayer](https://developer.android.google.cn/guide/topics/media/mediaplayer#mpandservices)。

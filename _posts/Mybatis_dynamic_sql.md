@@ -22,6 +22,8 @@ CREATE TABLE `users` (
 
 当我们使用mybatis查询数据的时候，一般情况，都是类似`select * from tab where id = ?`，这种情况其实比较好处理，但是有些时候我们需要根据不同的情况查询不同的数据库的列，例如上表，我们需要跟进不同的情况来决定是取`user_name`还是`nick_name`，类似`select * from tab where ? = '黎明'`，那么我写的这个句子对吗？
 
+<!-- more -->
+
 ### 搭建mybatis环境
 其实不应该讲环境的，这里简单提及一下。我是使用gradle的，maven只会一点点。个人使用的是目前最新的spring boot 2.2.0版本，文档说比之前的版本快了很多，个人测试过，确实快了非常的多。
 外层根build.gradle:

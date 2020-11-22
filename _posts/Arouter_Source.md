@@ -34,6 +34,7 @@ public class MainActivity$$ARouter$$Autowired implements ISyringe {
 ##### inject方法的调用
 根据固定的包名，类名直接反射调用。当然，反射一次之后会有缓存。
 
+<!-- more -->
 
 #### 2.关于拦截器的Interceptor的注册和初始化
 收集拦截器也比较简单，先定义通用接口，然后收集。

@@ -229,13 +229,17 @@ Arouter是生成代码到`com.alibaba.android.arouter.core.LogisticsCenter`类�
 ![LogisticsCenter](/images/arouter_logistics_center.png)
 
 
-#### 3.关于路由的使用
+#### 4.初始化流程图
+![Arouter init](/images/arouter_init.png)
+
+#### 5.关于路由的使用
+![Arouter navigation](/images/arouter_navigation.png)
 这里要说明的是拦截器sdk会自动使用。所以我们一般查找的对象都是RouteMeta对象，我们会在使用一次之后存储下来。
 ```
 ARouter.getInstance().build("/test/activity2").navigation();
 ```
 首先build会生成Postcard对象，当然这个对象里面只有path即`/test/activity2`和group即`test`。
-然后需要为Postcard填充额外信息，比如类型，是Activity还是Fragment，还是IProvider等其他的参数。
+然后需要为Postcard填充额外信息，比如类型，是Activity还是Fragment，还是IProvider等其他的参数。当然这些类型之类的参数，我们在使用apt存放的时候都存入进去了。
 
 根据分组名称在`routerMaps`找到`ARouter$$Group$$groupb`具体的路由类，反射调用`loadInto`把当前分组的所有路由都初始化一遍并且缓存起来。同时`routerMaps`移除这个分组。
 

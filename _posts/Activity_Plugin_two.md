@@ -5,7 +5,7 @@ tags: [插件化]
 categories: [Android,插件化]
 ---
 上一篇文章里面我们分析了一下Activity插件化并提出了5个问题，然后有的问题给出了解决方案，有的问题没有给出解决方案，不用担心，会有一系列的文章来循序渐进的把Activity插件化过程中遇到的问题慢慢讲清楚。
-本文代码:[PluginDemo/activity_plugin](https://github.com/qingyongai/PluginDemo/tree/activity_plugin_01)
+本文代码:[PluginDemo/activity_plugin](https://github.com/CCtomorrow/PluginDemo/tree/activity_plugin_01)
 
 **这篇文章只讲一个问题，Activity插件化占坑实现方式**
 后续文章将要讲到的，现阶段不讲的:

@@ -15,7 +15,7 @@ error: invalid package ID 0x28. Must be in the range 0x7f-0xff..
 ```
 
 **关于插件化为什么需要修改资源id，一定需要的么？可以看之前的一篇介绍文章。**
-[Android的资源管理器的创建过程](http://www.qingyongai.com/2017/05/05/Android_Resource_Manager/)
+[Android的资源管理器的创建过程](https://cctomorrow.github.io/2017/05/05/Android_Resource_Manager/)
 
 <!-- more -->
 

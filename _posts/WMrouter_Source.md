@@ -315,3 +315,5 @@ public class FakeAccountService implements IAccountService {
 
 所以得尽量避免Application里面使用到Service，然后子线程里面去调用`Router.lazyInit()`。
 
+如果想要在Application里面就使用Service，可以先调用`ServiceLoader.lazyInit();`，这个方法只会加载所有的`ServiceInit_xxx`。然后在异步开线程初始化`getRootHandler().lazyInit();`。
+

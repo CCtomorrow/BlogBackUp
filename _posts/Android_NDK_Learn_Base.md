@@ -68,7 +68,7 @@ JVM 查找 native 方法有两种方式：
 
 静态有两个非常重要的关键字JNIEXPORT和JNICALL，这两个关键字时宏定义，主要用于说明该函数是JNI函数，在虚拟机加载so库时，如果发现函数含有上面两个宏定义时，就会链接到对应java层的native方法。
 
-##### 步骤(参考[Android NDK 学习一之开篇](http://www.qingyongai.com/2018/11/15/Android_NDK_Learn_Start/))
+##### 步骤(参考[Android NDK 学习一之开篇](https://cctomorrow.github.io/2018/11/15/Android_NDK_Learn_Start/))
 
 - 编写native方法
 

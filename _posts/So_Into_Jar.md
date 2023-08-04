@@ -11,7 +11,7 @@ categories: [Android,ndk]
 #### 1.如何把so库放入jar包
 so库放入jar参考此文章[ANDROID将SO库封装到JAR包中并加载其中的SO库](https://www.freesion.com/article/8348550727/)
 ![放置路径](/images/97801677933126_.pic.jpg)
-将so库改成.jet后缀，放置和加载so库的SoLoader类同一个目录下面。
+将so库改成[.jet](https://developer.android.com/guide/topics/media/jet/jetcreator_manual?hl=zh-cn)后缀，放置和加载so库的SoLoader类同一个目录下面。
 
 <!-- more -->
 
